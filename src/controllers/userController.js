@@ -1,6 +1,6 @@
 const userModel = require('../models/userModel')
 const awsService = require('../aws/config')
-//const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt')
 
 const isValid = function (value) {
     if (typeof value === "undefined" || value === null) return false;
@@ -95,8 +95,8 @@ const register = async function(req, res){
         // userObject.address.shipping.pincode = userDetails.address.shipping.pincode;
 
         //Generating salt
-         //const salt = await bcrypt.genSalt(10);
-        // userDetails.password = await bcrypt.hash(userDetails.password, salt)
+         const salt = await bcrypt.genSalt(10);
+         userDetails.password = await bcrypt.hash(userDetails.password, salt)
         const createNewUser = await userModel.create(userDetails);
         res.status(201).send({status: true, message: 'Success', data: createNewUser})
     }

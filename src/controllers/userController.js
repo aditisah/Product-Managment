@@ -150,10 +150,12 @@ const register = async function (req, res) {
         //Generating salt
         //   const salt = await bcrypt.genSalt(10);
         //  userDetails.password = await bcrypt.hash(userDetails.password, salt)
+        //? let hashPassword = bcrypt.hashSync(password, 10);
         const createNewUser = await userModel.create(userDetails);
         res.status(201).send({ status: true, message: 'Success', data: createNewUser })
     }
     catch (err) {
+        console.log(err)
         res.status(500).send({ status: false, message: err.message })
     }
 }
@@ -210,8 +212,20 @@ const userLogin = async function (req, res) {
 
 }
 
+const getProfile = async (req, res) => {
+    try{
+        let userId = req.params.userId;
+        if(!userId) return res.status(400).json({status: false, message: 'User Id is required'});
 
-module.exports = { register, userLogin }
+        if(!userId.match(/^[0-9a-fA-F]{24}$/)) return res.status(400).json({status: false, message: 'User Id is not valid'});
 
+        const user = await userModel.findOne({_id: userId});
+        if(user) return res.status(200).json({status: true, message: 'User Profile Details', data: user});
+        else return res.status(404).json({status: false, message: 'User not found'});
+    }
+    catch(err){
+        res.status(500).json({status: false, message: err.message});
+    }
+}
 
-module.exports.updateUser = updateUser
+module.exports = { register, userLogin, getProfile, updateUser };

@@ -4,6 +4,7 @@ const userController = require("../controllers/userController")
 
 router.post("/login", userController.userLogin)
 
+router.post("/register", userController.register);
 router.all('/*', function(req,res){
     res.status(400).send({status:false,message:"Invaild url"})
 })

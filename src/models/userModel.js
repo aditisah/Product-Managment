@@ -1,6 +1,6 @@
-const mongoose = require("mongoose")
-
-const userSchema = new mongoose.Schema({
+const mongoose = require('mongoose');
+ 
+const userSchema = mongoose.Schema({
     fname: {
         type: String,
         required: true
@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: true,
+        required: true,  
         unique: true
     },
     profileImage: {
@@ -25,7 +25,9 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        minLength: 8,
+        maxLength: 15
     },
     address: {
         shipping: {
@@ -38,7 +40,7 @@ const userSchema = new mongoose.Schema({
                 required: true
             },
             pincode: {
-                type: number,
+                type: Number,
                 required: true
             }
         },
@@ -52,13 +54,12 @@ const userSchema = new mongoose.Schema({
                 required: true
             },
             pincode: {
-                type: number,
+                type: Number,
                 required: true
             }
         }
     }
-},
-    { timestamps: true }
-)
+},{timestamps:true})
 
-module.exports = mongoose.model("users", userSchema)
+
+module.exports = mongoose.Model('User', userSchema)

@@ -4,50 +4,6 @@ const bcrypt = require("bcrypt")
 const validator = require("../validator/validator")
 const awsService = require('../aws/config')
 
-//const bcrypt = require('bcrypt')
-const updateUser = async function (req, res) {
-    try {
-        let userId = req.params.userId
-        if (!validator.isValidObjectId(userId)) {
-            return res.status(400).send({ status: false, message: "Incorrect userId format" })
-        }
-        // if (!Object.keys(requestBody).length>0) {
-        //     return res.status(400).send({ status: false, message: "Body is empty, please Provide data" })
-        // };
-
-        // let user= await userModel.findById(userId)
-        //  if (user) {
-        //      return res.status(404).send({ status: false, message: "user not Found" })
-        //  }
-        // if (req.token.userId!= user.userId) {
-        //     return res.status(403).send({ status: false, message: "Not Authorised" })
-        // }
-        const userDetails = req.body
-        const userObject = {
-            fname: userDetails.fname,
-            lname: userDetails.lname,
-            email: userDetails.email,
-            phone: userDetails.phone,
-            //address: userDetails.address.shipping.street
-            //address:userDetails.address.shipping.city,
-            //address :userDetails.address.shipping.pincode,
-            // address:userDetails.address.billing.street,
-            // address:userDetails.address.billing.city,
-            // address:userDetails.address.billing.pincode
-        }
-
-
-        const updateduser = await userModel.findByIdAndUpdate({ _id: userId }, { $set: userObject },
-            { new: true }
-        );
-
-        console.log(updateduser)
-        return res.status(200).send({ status: true, message: "Success", data: updateduser })
-    }
-    catch (error) {
-        res.status(500).send({ status: false, message: error.message })
-    }
-}
 
 const register = async function (req, res) {
     try {
@@ -56,78 +12,93 @@ const register = async function (req, res) {
             res.status(400).send({ status: false, message: "Please Provide Necessary Details" })
             return
         }
-        const userObject = {};
-        if (!userDetails.fname || !validator.isValid(userDetails.fname)) {
-            res.status(400).send({ status: false, message: "Please Enter firstname" })
-            return
-        }
-        userObject.fname = userDetails.fname;
 
-        if (!userDetails.lname || !validator.isValid(userDetails.lname)) {
-            res.status(400).send({ status: false, message: "Please Enter lastname" })
-            return
-        }
-        userObject.lname = userDetails.lname;
+         const userObject = {};
+         if (!userDetails.fname || !validator.isValid(userDetails.fname)) {
+             res.status(400).send({ status: false, message: "Please Enter firstname" })
+             return
+         }
+         userObject.fname = userDetails.fname;
 
-        if (!userDetails.email || !validator.isValidEmail(userDetails.email)) {
-            res.status(400).send({ status: false, message: "Please Enter firstname" })
-            return
-        }
-        userObject.email = userDetails.email
-        const isEmailExist = await userModel.findOne({ email: userObject.email })
-        if (isEmailExist) {
-            res.status(409).send({ status: false, message: "Given email id already exists!!" })
-            return
-        }
+         if (!userDetails.lname || !validator.isValid(userDetails.lname)) {
+             res.status(400).send({ status: false, message: "Please Enter lastname" })
+             return
+         }
+         userObject.lname = userDetails.lname;
 
-        if (!userDetails.phone || !validator.isValidPhone(userDetails.phone)) {
-            res.status(400).send({ status: false, message: "Please Enter phone number" })
-            return
-        }
-        if (!validator.isValidPhone(userDetails.phone)) {
-            res.status(400).send({ status: false, message: "Please Enter valid phone number" })
-            return
-        }
-        userObject.phone = userDetails.phone;
+         if (!userDetails.email || !validator.isValidEmail(userDetails.email)) {
+             res.status(400).send({ status: false, message: "Please Enter email" })
+             return
+         }
+         userObject.email = userDetails.email
+         const isEmailExist = await userModel.findOne({ email: userDetails.email })
+         if (isEmailExist) {
+             res.status(409).send({ status: false, message: "Given email id already exists!!" })
+             return
+         }
 
-        const address = JSON.parse(userDetails.address)
-        console.log(address)
-        if (!address.shipping.street || !validator.isValid(address.shipping.street)) {
-            res.status(400).send({ status: false, message: "Please Enter shipping street" })
-            return
-        }
+         if(!validator.isValidImage(files[0].originalname.toLowerCase())){
+             return res.status(400).send({ status: false, message: "Image format is not correct" })
+         }
 
-        if (!userDetails.address.shipping.city || !validator.isValid(userDetails.address.shipping.city)) {
-            res.status(400).send({ status: false, message: "Please Enter shipping city" })
-            return
-        }
-        userObject.address = userDetails.address.shipping.city;
+         if (!userDetails.phone || !validator.isValidPhone(userDetails.phone)) {
+             res.status(400).send({ status: false, message: "Please Enter phone number" })
+             return
+         }
+         if (!validator.isValidPhone(userDetails.phone)) {
+             res.status(400).send({ status: false, message: "Please Enter valid phone number" })
+             return
+         }
 
-        if (!userDetails.address.pincode || !validator.isValidPincode(userDetails.address.pincode)) {
-            res.status(400).send({ status: false, message: "Please Enter shipping pincode" })
+         userObject.phone = userDetails.phone;
+         const isPhoneUnique = await userModel.findOne({phone:userObject.phone});
+         if(isPhoneUnique){
+            res.status(400).send({ status: false, message: "Phone number already exists" })
             return
-        }
-        userObject.address.shipping.pincode = userDetails.address.shipping.pincode;
+         }
+         const address = JSON.parse(userDetails.address)
+         console.log(address)
+         if (!address.shipping.street || !validator.isValid(address.shipping.street)) {
+             res.status(400).send({ status: false, message: "Please Enter shipping street" })
+             return
+         }
 
-        if (!userDetails.billing.address.street || !validator.isValid(userDetails.billing.address.street)) {
-            res.status(400).send({ status: false, message: "Please Enter billing street" })
-            return
-        }
-        userObject.address.billing.street = userDetails.address.billing.street;
+         if (!address.shipping.city || !validator.isValid(address.shipping.city)) {
+             res.status(400).send({ status: false, message: "Please Enter shipping city" })
+             return
+         }
+         
 
-        if (!userDetails.address.billing.city || !validator.isValid(userDetails.address.billing.city)) {
-            res.status(400).send({ status: false, message: "Please Enter billing city" })
-            return
-        }
-        userObject.address.billing.city = userDetails.address.billing.city;
+         if (!address.shipping.pincode || !validator.isValidPincode(address.shipping.pincode)) {
+             res.status(400).send({ status: false, message: "Please Enter shipping pincode" })
+             return
+         }
 
-        if (!userDetails.billing.address.pincode || !validator.isValid(userDetails.billing.address.pincode)) {
-            res.status(400).send({ status: false, message: "Please Enter billing pincode" })
-            return
-        }
-        userObject.address.billing.pincode = userDetails.address.billing.pincode;
+         if (!address.billing.street || !validator.isValid(address.billing.street)) {
+             res.status(400).send({ status: false, message: "Please Enter billing street" })
+             return
+         }
+         
 
+         if (!address.billing.city || !validator.isValid(address.billing.city)) {
+             res.status(400).send({ status: false, message: "Please Enter billing city" })
+             return
+         }
+
+         if (!address.billing.pincode || !validator.isValid(address.billing.pincode)) {
+             res.status(400).send({ status: false, message: "Please Enter billing pincode" })
+             return
+         }
+         userObject.address = address;
+
+        //Encrypting password
         userObject.password = await bcrypt.hash(userDetails.password, 10)
+
+        //Uploading file
+        if (files && files.length > 0) {
+            uploadProfileImage = await awsService.uploadImage(files[0])
+        }
+        userObject['profileImage'] = uploadProfileImage;
 
         const files = req.files;
         let uploadProfileImage;
@@ -223,6 +194,50 @@ const getProfile = async (req, res) => {
     }
     catch (err) {
         res.status(500).json({ status: false, message: err.message });
+    }
+}
+
+const updateUser = async function (req, res) {
+    try {
+        let userId = req.params.userId
+        if (!validator.isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: "Incorrect userId format" })
+        }
+        // if (!Object.keys(requestBody).length>0) {
+        //     return res.status(400).send({ status: false, message: "Body is empty, please Provide data" })
+        // };
+
+        // let user= await userModel.findById(userId)
+        //  if (user) {
+        //      return res.status(404).send({ status: false, message: "user not Found" })
+        //  }
+        // if (req.token.userId!= user.userId) {
+        //     return res.status(403).send({ status: false, message: "Not Authorised" })
+        // }
+        const userDetails = req.body
+        const userObject = {
+            fname: userDetails.fname,
+            lname: userDetails.lname,
+            email: userDetails.email,
+            phone: userDetails.phone,
+            //address: userDetails.address.shipping.street
+            //address:userDetails.address.shipping.city,
+            //address :userDetails.address.shipping.pincode,
+            // address:userDetails.address.billing.street,
+            // address:userDetails.address.billing.city,
+            // address:userDetails.address.billing.pincode
+        }
+
+
+        const updateduser = await userModel.findByIdAndUpdate({ _id: userId }, { $set: userObject },
+            { new: true }
+        );
+
+        console.log(updateduser)
+        return res.status(200).send({ status: true, message: "Success", data: updateduser })
+    }
+    catch (error) {
+        res.status(500).send({ status: false, message: error.message })
     }
 }
 

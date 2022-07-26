@@ -1,3 +1,5 @@
+const {isValidObjectId} = require("mongoose")
+
 const isValidEmail = function (value) {
     const regEx = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/
     return regEx.test(value)
@@ -34,4 +36,4 @@ const isValidImage = (value) => {
     return result
 }
 
-module.exports = { isValidEmail, isValidPassword, isValid, isValidPhone, isValidPincode, isValidImage}
+module.exports = { isValidEmail, isValidPassword, isValid, isValidPhone, isValidPincode, isValidImage, isValidObjectId}

@@ -8,49 +8,92 @@ const awsService = require('../aws/config')
 const updateUser = async function (req, res) {
     try {
         let userId = req.params.userId
-         if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
-             return res.status(400).send({ status: false, message: "Incorrect userId format" })
-        }
-        // if (!Object.keys(requestBody).length>0) {
-        //     return res.status(400).send({ status: false, message: "Body is empty, please Provide data" })
-        // };
-
-        // let user= await userModel.findById(userId)
-        //  if (user) {
-        //      return res.status(404).send({ status: false, message: "user not Found" })
-        //  }
-        // if (req.token.userId!= user.userId) {
-        //     return res.status(403).send({ status: false, message: "Not Authorised" })
-        // }
         const userDetails = req.body
-        const userObject = {
-     fname : userDetails.fname,
-     lname :userDetails.lname,
-     email : userDetails.email,
-     phone : userDetails.phone,
-     //address: userDetails.address.shipping.street
-     //address:userDetails.address.shipping.city,
-     //address :userDetails.address.shipping.pincode,
-    // address:userDetails.address.billing.street,
-    // address:userDetails.address.billing.city,
-    // address:userDetails.address.billing.pincode
-    }
+        if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).send({ status: false, message: "Incorrect userId format" })
+        }
+        if (Object.keys(userDetails).length === 0) {
+            res.status(400).send({ status: false, message: "Please Provide Necessary Details" })
+            return
+        }
 
-        
-        const updateduser = await userModel.findByIdAndUpdate( { _id: userId }, { $set: userObject},
-            { new: true }
-          );
+        const userObject = {
+            // fname: userDetails.fname,
+            // lname: userDetails.lname,
+            // email: userDetails.email,
+            // phone: userDetails.phone
+        }
+
+        if (userDetails.fname) {
+            if (!validator.isValid(userDetails.fname)) {
+                res.status(400).send({ status: false, message: "Please Enter  vaild firstname" })
+                return
+            }
+            userObject.fname = userDetails.fname;
+        }
+        if (userDetails.fname == "") {
+            return res.status(400).send({ status: false, message: "Please Enter firstname" })
+        }
+        if (userDetails.lname) {
+            if (!validator.isValid(userDetails.lname)) {
+                res.status(400).send({ status: false, message: "Please Enter valid lastname" })
+                return
+            }
+            userObject.lname = userDetails.lname;
+        }
+        if (userDetails.lname == "") {
+            return res.status(400).send({ status: false, message: "Please Enter lastname" })
+        }
+        if (userDetails.email) {
+            if (!validator.isValidEmail(userDetails.email)) {
+                res.status(400).send({ status: false, message: "Please Enter valid email" })
+                return
+            }
+            userObject.email = userDetails.email
+        }
+        if (userDetails.email == "") {
+            return res.status(400).send({ status: false, message: "you selected the email field but value not provided" })
+        }
+        if (userDetails.phone) {
+            if (!validator.isValidPhone(userDetails.phone)) {
+                res.status(400).send({ status: false, message: "Please Enter valid phone" })
+                return
+            }
+            userObject.email = userDetails.email
+        }
+        if (userDetails.phone == "") {
+            return res.status(400).send({ status: false, message: "you selected the phone field but value not provided" })
+        }
+
+        if (userDetails.address) {
+            const address = JSON.parse(userDetails.address)
+            if (Object.keys(address).length == 0) {
+                return res.status(400).send({ status: false, message: "Please Enter shipping or biling address" })
+            }
+            userObject.address = {};
+            if (address.shipping) {
+                if (Object.keys(address.shipping).length == 0) {
+                    return res.status(400).send({ status: false, message: "Please Enter shipping address" })
+                }
+            }
+            if (address.billing) {
+                if (Object.keys(address.billing).length == 0) {
+                    return res.status(400).send({ status: false, message: "Please Enter biling address" })
+                }
+            }
+        }
        
+
+      const updateduser = await userModel.findByIdAndUpdate({ _id: userId }, { $set: userObject },
+            { new: true }
+        );
         console.log(updateduser)
-        return res.status(200).send({ status: true, message: "Success", data:updateduser })
+        return res.status(200).send({ status: true, message: "Success", data: updateduser })
     }
     catch (error) {
         res.status(500).send({ status: false, message: error.message })
     }
 }
-
-
-
 
 const register = async function (req, res) {
     try {
@@ -90,7 +133,7 @@ const register = async function (req, res) {
         }
 
 
-        if(!validator.isValidImage(files[0].originalname.toLowerCase())){
+        if (!validator.isValidImage(files[0].originalname.toLowerCase())) {
             return res.status(400).send({ status: false, message: "Image format is not correct" })
         }
 
@@ -160,7 +203,7 @@ const register = async function (req, res) {
 
 
 
-        
+
 
 const userLogin = async function (req, res) {
     try {

@@ -4,6 +4,54 @@ const bcrypt = require("bcrypt")
 const validator = require("../validator/validator")
 const awsService = require('../aws/config')
 
+//const bcrypt = require('bcrypt')
+const updateUser = async function (req, res) {
+    try {
+        let userId = req.params.userId
+         if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+             return res.status(400).send({ status: false, message: "Incorrect userId format" })
+        }
+        // if (!Object.keys(requestBody).length>0) {
+        //     return res.status(400).send({ status: false, message: "Body is empty, please Provide data" })
+        // };
+
+        // let user= await userModel.findById(userId)
+        //  if (user) {
+        //      return res.status(404).send({ status: false, message: "user not Found" })
+        //  }
+        // if (req.token.userId!= user.userId) {
+        //     return res.status(403).send({ status: false, message: "Not Authorised" })
+        // }
+        const userDetails = req.body
+        const userObject = {
+     fname : userDetails.fname,
+     lname :userDetails.lname,
+     email : userDetails.email,
+     phone : userDetails.phone,
+     //address: userDetails.address.shipping.street
+     //address:userDetails.address.shipping.city,
+     //address :userDetails.address.shipping.pincode,
+    // address:userDetails.address.billing.street,
+    // address:userDetails.address.billing.city,
+    // address:userDetails.address.billing.pincode
+    }
+
+        
+        const updateduser = await userModel.findByIdAndUpdate( { _id: userId }, { $set: userObject},
+            { new: true }
+          );
+       
+        console.log(updateduser)
+        return res.status(200).send({ status: true, message: "Success", data:updateduser })
+    }
+    catch (error) {
+        res.status(500).send({ status: false, message: error.message })
+    }
+}
+
+
+
+
 const register = async function (req, res) {
     try {
         const userDetails = req.body;
@@ -101,9 +149,14 @@ const register = async function (req, res) {
         return res.status(201).send({ status: true, message: 'Success', data: createNewUser })
     }
     catch (err) {
+        console.log(err)
         res.status(500).send({ status: false, message: err.message })
     }
 }
+
+
+
+        
 
 const userLogin = async function (req, res) {
     try {
@@ -153,4 +206,20 @@ const userLogin = async function (req, res) {
 
 }
 
-module.exports = { register, userLogin }
+const getProfile = async (req, res) => {
+    try{
+        let userId = req.params.userId;
+        if(!userId) return res.status(400).json({status: false, message: 'User Id is required'});
+
+        if(!userId.match(/^[0-9a-fA-F]{24}$/)) return res.status(400).json({status: false, message: 'User Id is not valid'});
+
+        const user = await userModel.findOne({_id: userId});
+        if(user) return res.status(200).json({status: true, message: 'User Profile Details', data: user});
+        else return res.status(404).json({status: false, message: 'User not found'});
+    }
+    catch(err){
+        res.status(500).json({status: false, message: err.message});
+    }
+}
+
+module.exports = { register, userLogin, getProfile, updateUser };

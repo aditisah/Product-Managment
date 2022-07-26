@@ -1,11 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const userController = require("../controllers/userController")
 
-router.post("/login", userController.userLogin)
+const {updateUser, userLogin, register, getProfile} = require("../controllers/userController");
+const {authentication} = require('../middleware/auth');
 
-router.post("/register", userController.register);
-router.all('/*', function(req,res){
+router.post("/register", register);
+router.post("/login", userLogin);
+router.get('/user/:userId/profile', getProfile);
+router.put("/user/:userId/profile", authentication, updateUser);
+
+
+
+router.all('/*', function(res){
     res.status(400).send({status:false,message:"Invaild url"})
 })
 

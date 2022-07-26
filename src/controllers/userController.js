@@ -7,8 +7,6 @@ const awsService = require('../aws/config')
 const register = async function (req, res) {
     try {
         const userDetails = req.body;
-        const files = req.files;
-        let uploadProfileImage;
         if (Object.keys(userDetails).length === 0) {
             res.status(400).send({ status: false, message: "Please Provide Necessary Details" })
             return
@@ -37,14 +35,6 @@ const register = async function (req, res) {
             return
         }
 
-        if(!validator.isValidImage(files[0].originalname.toLowerCase())){
-            return res.status(400).send({ status: false, message: "Image format is not correct" })
-        }
-        if (files && files.length > 0) {
-            uploadProfileImage = await awsService.uploadImage(files[0])
-        }
-        userDetails['profileImage'] = uploadProfileImage;
-
         if (!userDetails.phone || !validator.isValidPhone(userDetails.phone)) {
             res.status(400).send({ status: false, message: "Please Enter phone number" })
             return
@@ -55,17 +45,18 @@ const register = async function (req, res) {
         }
         userObject.phone = userDetails.phone;
 
-        if (!userDetails.address.shipping.street || !validator.isValid(userDetails.address.shipping.street)) {
+        const address = JSON.parse(userDetails.address)
+        console.log(address)
+        if (!address.shipping.street || !validator.isValid(address.shipping.street)) {
             res.status(400).send({ status: false, message: "Please Enter shipping street" })
             return
         }
-        userObject.address.shipping.street = userDetails.address.shipping.street;
 
         if (!userDetails.address.shipping.city || !validator.isValid(userDetails.address.shipping.city)) {
             res.status(400).send({ status: false, message: "Please Enter shipping city" })
             return
         }
-        userObject.address.shipping.city = userDetails.address.shipping.city;
+        userObject.address = userDetails.address.shipping.city;
 
         if (!userDetails.address.pincode || !validator.isValidPincode(userDetails.address.pincode)) {
             res.status(400).send({ status: false, message: "Please Enter shipping pincode" })
@@ -77,23 +68,37 @@ const register = async function (req, res) {
             res.status(400).send({ status: false, message: "Please Enter billing street" })
             return
         }
-        userObject.address.shipping.street = userDetails.address.shipping.street;
-
-        if (!userDetails.billing.address.city || !validator.isValid(userDetails.billing.address.city)) {
+        userObject.address.billing.street = userDetails.address.billing.street;
+        
+        if (!userDetails.address.billing.city || !validator.isValid(userDetails.address.billing.city)) {
             res.status(400).send({ status: false, message: "Please Enter billing city" })
             return
         }
-        userObject.address.shipping.city = userDetails.address.shipping.city;
+        userObject.address.billing.city = userDetails.address.billing.city;
 
         if (!userDetails.billing.address.pincode || !validator.isValid(userDetails.billing.address.pincode)) {
             res.status(400).send({ status: false, message: "Please Enter billing pincode" })
             return
         }
-        userObject.address.shipping.pincode = userDetails.address.shipping.pincode;
+        userObject.address.billing.pincode = userDetails.address.billing.pincode;
+
         userObject.password = await bcrypt.hash(userDetails.password, 10)
 
+        const files = req.files;
+        let uploadProfileImage;
+        if(!validator.isValidImage(files[0].originalname.toLowerCase())){
+            return res.status(400).send({ status: false, message: "Image format is not correct" })
+        }
+        if (files && files.length > 0 && files.length<2) {
+            uploadProfileImage = await awsService.uploadImage(files[0])
+        }
+        else{
+            return res.status(400).send({status:false, message:"please provide only one file"})
+        }
+        userObject['profileImage'] = uploadProfileImage;
+
         const createNewUser = await userModel.create(userObject);
-        res.status(201).send({ status: true, message: 'Success', data: createNewUser })
+        return res.status(201).send({ status: true, message: 'Success', data: createNewUser })
     }
     catch (err) {
         res.status(500).send({ status: false, message: err.message })
@@ -147,6 +152,5 @@ const userLogin = async function (req, res) {
     }
 
 }
-
 
 module.exports = { register, userLogin }

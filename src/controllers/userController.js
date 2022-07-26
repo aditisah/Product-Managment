@@ -4,11 +4,10 @@ const bcrypt = require("bcrypt")
 const validator = require("../validator/validator")
 const awsService = require('../aws/config')
 
+
 const register = async function (req, res) {
     try {
         const userDetails = req.body;
-        const files = req.files;
-        let uploadProfileImage;
         if (Object.keys(userDetails).length === 0) {
             res.status(400).send({ status: false, message: "Please Provide Necessary Details" })
             return
@@ -101,10 +100,24 @@ const register = async function (req, res) {
         }
         userObject['profileImage'] = uploadProfileImage;
 
+        const files = req.files;
+        let uploadProfileImage;
+        if (!validator.isValidImage(files[0].originalname.toLowerCase())) {
+            return res.status(400).send({ status: false, message: "Image format is not correct" })
+        }
+        if (files && files.length > 0 && files.length < 2) {
+            uploadProfileImage = await awsService.uploadImage(files[0])
+        }
+        else {
+            return res.status(400).send({ status: false, message: "please provide only one file" })
+        }
+        userObject['profileImage'] = uploadProfileImage;
+
         const createNewUser = await userModel.create(userObject);
-        res.status(201).send({ status: true, message: 'Success', data: createNewUser })
+        return res.status(201).send({ status: true, message: 'Success', data: createNewUser })
     }
     catch (err) {
+        console.log(err)
         res.status(500).send({ status: false, message: err.message })
     }
 }
@@ -130,11 +143,10 @@ const userLogin = async function (req, res) {
         }
         const findUser = await userModel.findOne({ email })
         if (!findUser) {
-            return res.status(404).send({ status: false, message: "User not found" })
+            return res.status(404).send({ status: false, message: `User not found for this email: ${email}` })
         }
-         //const encryptPassword = await bcrypt.hash(password, 10)
         const decodePassword = await bcrypt.compare(password, findUser.password)
-        if (decodePassword == true) {
+        if (decodePassword) {
             const iat = Date.now()
             const exp = (iat) + (24 * 60 * 60 * 1000)
             const token = jwt.sign(
@@ -145,10 +157,11 @@ const userLogin = async function (req, res) {
                 },
                 "project/productManagementGroup52"
             )
+            res.setHeader("Authorization", "Bearer "+token)
             return res.status(200).send({ status: true, message: "User login successfull, token will be valid for 24 hrs", data: { userId: findUser._id, token } })
         }
         else {
-            return res.status(404).send({ status: false, message: "Password is wrong" })
+            return res.status(404).send({ status: false, message: `Password is wrong for this emial: ${email}`})
         }
     }
     catch (error) {
@@ -157,5 +170,75 @@ const userLogin = async function (req, res) {
 
 }
 
+const getProfile = async (req, res) => {
+    try {
+        let userId = req.params.userId;
+        if (!userId) {
+            return res.status(400).send({ status: false, message: 'User Id is required' });
+        }
+        if (!validator.isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: 'User Id is not valid' });
+        }
+        if (req.userId == userId) {
+            const user = await userModel.findOne({ _id: userId });
+            if (user) {
+                return res.status(200).send({ status: true, message: 'User Profile Details', data: user });
+            }
+            else {
+                return res.status(404).send({ status: false, message: 'User not found' });
+            }
+        }
+        else {
+            return res.status(403).send({ status: false, message: 'You are not authorize to see others profile' });
+        }
+    }
+    catch (err) {
+        res.status(500).json({ status: false, message: err.message });
+    }
+}
 
-module.exports = { register, userLogin }
+const updateUser = async function (req, res) {
+    try {
+        let userId = req.params.userId
+        if (!validator.isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: "Incorrect userId format" })
+        }
+        // if (!Object.keys(requestBody).length>0) {
+        //     return res.status(400).send({ status: false, message: "Body is empty, please Provide data" })
+        // };
+
+        // let user= await userModel.findById(userId)
+        //  if (user) {
+        //      return res.status(404).send({ status: false, message: "user not Found" })
+        //  }
+        // if (req.token.userId!= user.userId) {
+        //     return res.status(403).send({ status: false, message: "Not Authorised" })
+        // }
+        const userDetails = req.body
+        const userObject = {
+            fname: userDetails.fname,
+            lname: userDetails.lname,
+            email: userDetails.email,
+            phone: userDetails.phone,
+            //address: userDetails.address.shipping.street
+            //address:userDetails.address.shipping.city,
+            //address :userDetails.address.shipping.pincode,
+            // address:userDetails.address.billing.street,
+            // address:userDetails.address.billing.city,
+            // address:userDetails.address.billing.pincode
+        }
+
+
+        const updateduser = await userModel.findByIdAndUpdate({ _id: userId }, { $set: userObject },
+            { new: true }
+        );
+
+        console.log(updateduser)
+        return res.status(200).send({ status: true, message: "Success", data: updateduser })
+    }
+    catch (error) {
+        res.status(500).send({ status: false, message: error.message })
+    }
+}
+
+module.exports = { register, userLogin, getProfile, updateUser };

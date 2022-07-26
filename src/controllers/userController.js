@@ -76,6 +76,7 @@ const updateUser = async function (req, res) {
                     return res.status(400).send({ status: false, message: "Please Enter shipping address" })
                 }
             }
+            
             if (address.billing) {
                 if (Object.keys(address.billing).length == 0) {
                     return res.status(400).send({ status: false, message: "Please Enter biling address" })

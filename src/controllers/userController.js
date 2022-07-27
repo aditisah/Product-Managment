@@ -12,47 +12,54 @@ const register = async function (req, res) {
             return
         }
 
-         const userObject = {};
-         if (!userDetails.fname || !validator.isValid(userDetails.fname)) {
-             res.status(400).send({ status: false, message: "Please Enter firstname" })
-             return
-         }
-         userObject.fname = userDetails.fname;
+        const userObject = {};
+        if (!userDetails.fname || !validator.isValid(userDetails.fname)) {
+            res.status(400).send({ status: false, message: "Please Enter firstname" })
+            return
+        }
+        userObject.fname = userDetails.fname;
 
-         if (!userDetails.lname || !validator.isValid(userDetails.lname)) {
-             res.status(400).send({ status: false, message: "Please Enter lastname" })
-             return
-         }
-         userObject.lname = userDetails.lname;
+        if (!userDetails.lname || !validator.isValid(userDetails.lname)) {
+            res.status(400).send({ status: false, message: "Please Enter lastname" })
+            return
+        }
+        userObject.lname = userDetails.lname;
 
-         if (!userDetails.email || !validator.isValidEmail(userDetails.email)) {
-             res.status(400).send({ status: false, message: "Please Enter email" })
-             return
-         }
-         userObject.email = userDetails.email
-         const isEmailExist = await userModel.findOne({ email: userDetails.email })
-         if (isEmailExist) {
-             res.status(409).send({ status: false, message: "Given email id already exists!!" })
-             return
-         }
+        if (!userDetails.email || !validator.isValidEmail(userDetails.email)) {
+            res.status(400).send({ status: false, message: "Please Enter email" })
+            return
+        }
+        userObject.email = userDetails.email
+        const isEmailExist = await userModel.findOne({ email: userDetails.email })
+        if (isEmailExist) {
+            res.status(409).send({ status: false, message: "Given email id already exists!!" })
+            return
+        }
 
-         if (!userDetails.phone || !validator.isValidPhone(userDetails.phone)) {
-             res.status(400).send({ status: false, message: "Please Enter phone number" })
-             return
-         }
-         if (!validator.isValidPhone(userDetails.phone)) {
-             res.status(400).send({ status: false, message: "Please Enter valid phone number" })
-             return
-         }
+        if (!userDetails.phone || !validator.isValidPhone(userDetails.phone)) {
+            res.status(400).send({ status: false, message: "Please Enter phone number" })
+            return
+        }
+        if (!validator.isValidPhone(userDetails.phone)) {
+            res.status(400).send({ status: false, message: "Please Enter valid phone number" })
+            return
+        }
 
-         userObject.phone = userDetails.phone;
-         const isPhoneUnique = await userModel.findOne({phone:userObject.phone});
-         if(isPhoneUnique){
+        userObject.phone = userDetails.phone;
+        const isPhoneUnique = await userModel.findOne({ phone: userObject.phone });
+        if (isPhoneUnique) {
             res.status(400).send({ status: false, message: "Phone number already exists" })
             return
         }
-        const address = JSON.parse(userDetails.address)
-        
+
+        let address
+        try {
+            address = JSON.parse(userDetails.address)
+        }
+        catch (error) {
+            return res.status(400).send({ status: false, message: "please enter valid pincode in address" })
+        }
+
         if (Object.keys(address).length == 0 || userDetails.address == "") {
             return res.status(400).send({ status: false, message: "please Enter address, this field is mandatory" })
         }
@@ -102,6 +109,9 @@ const register = async function (req, res) {
 
         //Uploading file
         const files = req.files;
+        if(files.length==0){
+            return res.status(400).send({ status: false, message: "please provide profile Image" })
+        }
         if (!validator.isValidImage(files[0].originalname.toLowerCase())) {
             return res.status(400).send({ status: false, message: "Image format is not correct" })
         }
@@ -110,7 +120,7 @@ const register = async function (req, res) {
             userObject['profileImage'] = uploadProfileImage;
         }
         else {
-            return res.status(400).send({ status: false, message: "please provide only one file" })
+            return res.status(400).send({ status: false, message: "please provide only one profile Image" })
         }
         const createNewUser = await userModel.create(userObject);
         return res.status(201).send({ status: true, message: 'Success', data: createNewUser })
@@ -265,11 +275,11 @@ const updateUser = async function (req, res) {
             //address
             if (userDetails.address) {
                 let address
-                try{
+                try {
                     address = JSON.parse(userDetails.address)
                 }
-                catch(error){
-                    return res.status(400).send({status:false, message:"please enter valid pincode in address"})
+                catch (error) {
+                    return res.status(400).send({ status: false, message: "please enter valid pincode in address" })
                 }
                 if (Object.keys(address).length == 0) {
                     return res.status(400).send({ status: false, message: "Please Enter shipping or biling address" })
@@ -377,7 +387,7 @@ const updateUser = async function (req, res) {
                     return res.status(400).send({ status: false, message: "please provide only one file" })
                 }
             }
-            const updateduser = await userModel.findByIdAndUpdate(userId ,userObject, { new: true });
+            const updateduser = await userModel.findByIdAndUpdate(userId, userObject, { new: true });
             return res.status(200).send({ status: true, message: "Success", data: updateduser })
         }
         else {

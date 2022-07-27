@@ -375,7 +375,7 @@ const updateUser = async function (req, res) {
                 }
             }
 
-            const updateduser = await userModel.findByIdAndUpdate({ _id: userId }, { $set: userObject }, { new: true });
+            const updateduser = await userModel.findByIdAndUpdate(userId , userObject , { new: true });
             return res.status(200).send({ status: true, message: "Success", data: updateduser })
         }
         else {

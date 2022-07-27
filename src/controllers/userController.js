@@ -264,22 +264,26 @@ const updateUser = async function (req, res) {
             }
             //address
             if (userDetails.address) {
-                const address = JSON.parse(userDetails.address)
+                let address
+                try{
+                    address = JSON.parse(userDetails.address)
+                }
+                catch(error){
+                    return res.status(400).send({status:false, message:"please enter valid pincode in address"})
+                }
                 if (Object.keys(address).length == 0) {
                     return res.status(400).send({ status: false, message: "Please Enter shipping or biling address" })
                 }
-                userObject.address = {};
                 //shipping address
                 if (address.shipping) {
                     if (Object.keys(address.shipping).length == 0) {
-                        return res.status(400).send({ status: false, message: "Please Enter shipping address" })
+                        return res.status(400).send({ status: false, message: "Please Enter something in shipping address to update" })
                     }
-                    userObject.address.shipping = {}
                     if (address.shipping.street) {
                         if (!validator.isValid(address.shipping.street)) {
                             return res.status(400).send({ status: false, message: "Please Enter valid shipping address street" })
                         }
-                        userObject.address.shipping.street = address.shipping.street
+                        userObject["address.shipping.street"] = address.shipping.street
                     }
                     if (address.shipping.street == "") {
                         return res.status(400).send({ status: false, message: "you selected the shipping address street field but value not provided" })
@@ -288,16 +292,16 @@ const updateUser = async function (req, res) {
                         if (!validator.isValid(address.shipping.city)) {
                             return res.status(400).send({ status: false, message: "Please Enter valid shipping address city" })
                         }
-                        userObject.address.shipping.city = address.shipping.city
+                        userObject["address.shipping.city"] = address.shipping.city
                     }
                     if (address.shipping.city == "") {
                         return res.status(400).send({ status: false, message: "you selected the shipping address street field but value not provided" })
                     }
                     if (address.shipping.pincode) {
                         if (!validator.isValidPincode(address.shipping.pincode)) {
-                            return res.status(400).send({ status: false, message: "Please Enter valid shipping address street" })
+                            return res.status(400).send({ status: false, message: "Please Enter valid shipping address pincode" })
                         }
-                        userObject.address.shipping.pincode = address.shipping.pincode
+                        userObject["address.shipping.pincode"] = address.shipping.pincode
                     }
                     if (address.shipping.pincode == "") {
                         return res.status(400).send({ status: false, message: "you selected the shipping address pincode field but value not provided" })
@@ -309,14 +313,13 @@ const updateUser = async function (req, res) {
                 //billing address
                 if (address.billing) {
                     if (Object.keys(address.billing).length == 0) {
-                        return res.status(400).send({ status: false, message: "Please Enter billing address" })
+                        return res.status(400).send({ status: false, message: "Please Enter something in billing address to update" })
                     }
-                    userObject.address.billing = {}
                     if (address.billing.street) {
                         if (!validator.isValid(address.billing.street)) {
                             return res.status(400).send({ status: false, message: "Please Enter valid billing address street" })
                         }
-                        userObject.address.billing.street = address.billing.street
+                        userObject["address.billing.street"] = address.billing.street
                     }
                     if (address.billing.street == "") {
                         return res.status(400).send({ status: false, message: "you selected the billing address street field but value not provided" })
@@ -325,7 +328,7 @@ const updateUser = async function (req, res) {
                         if (!validator.isValid(address.billing.city)) {
                             return res.status(400).send({ status: false, message: "Please Enter valid billing address city" })
                         }
-                        userObject.address.billing.city = address.billing.city
+                        userObject["address.billing.city"] = address.billing.city
                     }
                     if (address.billing.city == "") {
                         return res.status(400).send({ status: false, message: "you selected the billing address street field but value not provided" })
@@ -334,7 +337,7 @@ const updateUser = async function (req, res) {
                         if (!validator.isValidPincode(address.billing.pincode)) {
                             return res.status(400).send({ status: false, message: "Please Enter valid billing address pincode" })
                         }
-                        userObject.address.billing.pincode = address.billing.pincode
+                        userObject["address.billing.pincode"] = address.billing.pincode
                     }
                     if (address.billing.pincode == "") {
                         return res.status(400).send({ status: false, message: "you selected the billing address pincode field but value not provided" })
@@ -374,8 +377,7 @@ const updateUser = async function (req, res) {
                     return res.status(400).send({ status: false, message: "please provide only one file" })
                 }
             }
-
-            const updateduser = await userModel.findByIdAndUpdate(userId , userObject , { new: true });
+            const updateduser = await userModel.findByIdAndUpdate(userId ,userObject, { new: true });
             return res.status(200).send({ status: true, message: "Success", data: updateduser })
         }
         else {
@@ -386,7 +388,5 @@ const updateUser = async function (req, res) {
         res.status(500).send({ status: false, message: error.message })
     }
 }
-
-
 
 module.exports = { register, userLogin, getProfile, updateUser };

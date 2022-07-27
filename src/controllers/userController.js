@@ -12,42 +12,47 @@ const register = async function (req, res) {
             return
         }
 
-        const userObject = {};
-        if (!userDetails.fname || !validator.isValid(userDetails.fname)) {
-            res.status(400).send({ status: false, message: "Please Enter firstname, this field is mandatory" })
-            return
-        }
-        userObject.fname = userDetails.fname;
+         const userObject = {};
+         if (!userDetails.fname || !validator.isValid(userDetails.fname)) {
+             res.status(400).send({ status: false, message: "Please Enter firstname" })
+             return
+         }
+         userObject.fname = userDetails.fname;
 
-        if (!userDetails.lname || !validator.isValid(userDetails.lname)) {
-            res.status(400).send({ status: false, message: "Please Enter lastname, this field is mandatory" })
-            return
-        }
-        userObject.lname = userDetails.lname;
+         if (!userDetails.lname || !validator.isValid(userDetails.lname)) {
+             res.status(400).send({ status: false, message: "Please Enter lastname" })
+             return
+         }
+         userObject.lname = userDetails.lname;
 
-        if (!userDetails.email || !validator.isValidEmail(userDetails.email)) {
-            res.status(400).send({ status: false, message: "Please Enter valid email, this field is mandatory" })
-            return
-        }
-        userObject.email = userDetails.email
-        const isEmailExist = await userModel.findOne({ email: userDetails.email })
-        if (isEmailExist) {
-            res.status(409).send({ status: false, message: "Given email id already exists!!" })
-            return
-        }
+         if (!userDetails.email || !validator.isValidEmail(userDetails.email)) {
+             res.status(400).send({ status: false, message: "Please Enter email" })
+             return
+         }
+         userObject.email = userDetails.email
+         const isEmailExist = await userModel.findOne({ email: userDetails.email })
+         if (isEmailExist) {
+             res.status(409).send({ status: false, message: "Given email id already exists!!" })
+             return
+         }
 
-        if (!userDetails.phone || !validator.isValidPhone(userDetails.phone)) {
-            res.status(400).send({ status: false, message: "Please Enter valid phone number, this field is mandatory" })
-            return
-        }
+         if (!userDetails.phone || !validator.isValidPhone(userDetails.phone)) {
+             res.status(400).send({ status: false, message: "Please Enter phone number" })
+             return
+         }
+         if (!validator.isValidPhone(userDetails.phone)) {
+             res.status(400).send({ status: false, message: "Please Enter valid phone number" })
+             return
+         }
 
-        userObject.phone = userDetails.phone;
-        const isPhoneUnique = await userModel.findOne({ phone: userObject.phone });
-        if (isPhoneUnique) {
+         userObject.phone = userDetails.phone;
+         const isPhoneUnique = await userModel.findOne({phone:userObject.phone});
+         if(isPhoneUnique){
             res.status(400).send({ status: false, message: "Phone number already exists" })
             return
         }
         const address = JSON.parse(userDetails.address)
+        
         if (Object.keys(address).length == 0 || userDetails.address == "") {
             return res.status(400).send({ status: false, message: "please Enter address, this field is mandatory" })
         }

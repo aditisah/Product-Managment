@@ -24,20 +24,20 @@ const productSchema = new mongoose.Schema({
         uppercase:true,
         trim:true
     },
-    currencyFormat: {
-        type: String,
-        required: true, //rupee symbol
-        trim:true
-    },
+     currencyFormat: {
+         type: String,
+         required: true, //rupee symbol
+         trim:true
+     },
     isFreeShipping: {
         type: Boolean,
         default: false
     },
-    productImage: {
-        type: String,
-        required: true,
-        trim:true
-    },
+     productImage: {
+         type: String,
+         required: true,
+     trim:true
+     },
     style: {
         type:String,
         trim:true

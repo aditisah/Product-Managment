@@ -26,6 +26,9 @@ const isValidPhone = function (value) {
 }
 
 const isValidPincode = function (value){
+    if(value<100000){
+        return false
+    }
     const regEx = /^[0-9]{6}$/ 
     return regEx.test(value)
 }

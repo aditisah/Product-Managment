@@ -1,6 +1,6 @@
 const userModel = require("../models/userModel")
 const jwt = require("jsonwebtoken")
-// const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt")
 const validator = require("../validator/validator")
 const awsService = require('../aws/config')
 
@@ -93,7 +93,7 @@ const register = async function (req, res) {
             return res.status(400).send({ status: false, message: "please enter valid password, length should be between 8 to 15, this field is mandatory." })
         }
         //Encrypting password
-        userObject.password = await bcrypt.hash(userDetails.password, 10)
+        userObject.password = await bcrypt.hash(userDetails.password,10)
 
         //Uploading file
         const files = req.files;
@@ -112,7 +112,7 @@ const register = async function (req, res) {
     }
     catch (err) {
         console.log(err)
-        res.status(500).send({ status: false, message: err.message })
+        return res.status(500).send({ status: false, message: err.message })
     }
 }
 

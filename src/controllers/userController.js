@@ -37,10 +37,6 @@ const register = async function (req, res) {
              return
          }
 
-         if(!validator.isValidImage(files[0].originalname.toLowerCase())){
-             return res.status(400).send({ status: false, message: "Image format is not correct" })
-         }
-
          if (!userDetails.phone || !validator.isValidPhone(userDetails.phone)) {
              res.status(400).send({ status: false, message: "Please Enter phone number" })
              return
@@ -91,15 +87,15 @@ const register = async function (req, res) {
          }
          userObject.address = address;
 
+         if(8>userDetails.password.length>15){
+            res.status(400).send({ status: false, message: "Password length should be between 8 to 15" })
+             return
+         }
+
         //Encrypting password
         userObject.password = await bcrypt.hash(userDetails.password, 10)
 
         //Uploading file
-        if (files && files.length > 0) {
-            uploadProfileImage = await awsService.uploadImage(files[0])
-        }
-        userObject['profileImage'] = uploadProfileImage;
-
         const files = req.files;
         let uploadProfileImage;
         if (!validator.isValidImage(files[0].originalname.toLowerCase())) {
@@ -219,13 +215,7 @@ const updateUser = async function (req, res) {
             fname: userDetails.fname,
             lname: userDetails.lname,
             email: userDetails.email,
-            phone: userDetails.phone,
-            //address: userDetails.address.shipping.street
-            //address:userDetails.address.shipping.city,
-            //address :userDetails.address.shipping.pincode,
-            // address:userDetails.address.billing.street,
-            // address:userDetails.address.billing.city,
-            // address:userDetails.address.billing.pincode
+            phone: userDetails.phone
         }
 
 

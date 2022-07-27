@@ -11,6 +11,7 @@ const authentication = (req, res, next) => {
         }
         token = token.split(" ")
         token = token[1]
+        console.log(token)
         jwt.verify(token, "project/productManagementGroup52", (error, decodedToken) => {
             if (error) {
                 return res.status(400).send({ status: false, message: "Token is invalid" });

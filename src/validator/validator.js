@@ -1,4 +1,4 @@
-const {isValidObjectId} = require("mongoose")
+const { isValidObjectId } = require("mongoose")
 
 const isValidEmail = function (value) {
     const regEx = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/
@@ -20,16 +20,21 @@ const isValid = function (value) {
     return true;
 }
 
+const isValidDecimalNumber = function (value) {
+    const regEx = /^\d+(\.\d+)?$/
+    return regEx.test(value)
+}
+
 const isValidPhone = function (value) {
     const regEx = /^[6-9][0-9]{9}$/
     return regEx.test(value)
 }
 
-const isValidPincode = function (value){
-    if(value<100000){
+const isValidPincode = function (value) {
+    if (value < 100000) {
         return false
     }
-    const regEx = /^[0-9]{6}$/ 
+    const regEx = /^[0-9]{6}$/
     return regEx.test(value)
 }
 
@@ -39,4 +44,24 @@ const isValidImage = (value) => {
     return result
 }
 
-module.exports = { isValidEmail, isValidPassword, isValid, isValidPhone, isValidPincode, isValidImage, isValidObjectId}
+const isValidSize = function (value) {
+    const sizeArray = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+    let valueArray = value.split(",")
+    valueArray = [...new Set(valueArray)]
+    notFoundSize = []
+    for(let i=0;i<valueArray.length;i++){
+        let found = sizeArray.find(element=> element == valueArray[i].toUpperCase().trim())
+        if(found==undefined){
+            notFoundSize.push(found)
+            break;
+        }
+    }
+    if(notFoundSize.length==0){
+        return true
+    }
+    else{
+        return false
+    }
+}
+
+module.exports = { isValidEmail, isValidPassword, isValid, isValidDecimalNumber, isValidPhone, isValidPincode, isValidImage, isValidObjectId, isValidSize }

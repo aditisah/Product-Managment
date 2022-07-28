@@ -17,6 +17,11 @@ const isValidPassword = function (value) {
 const isValid = function (value) {
     if (typeof value === "undefined" || value === null) return false;
     if (typeof value === "string" && value.trim().length === 0) return false;
+    let a = value.split("")
+    a = [...new Set(a)]
+    if(a.length==1){
+        if(a[0]=='"' || a[0]=="'") return false
+    }
     return true;
 }
 

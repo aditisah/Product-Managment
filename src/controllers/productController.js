@@ -32,7 +32,7 @@ const createProduct = async function (req, res) {
         }
         availableSizes = availableSizes.split(",").map(a => a.trim().toUpperCase())
         availableSizes = [...new Set(availableSizes)]
-        
+
         let productData = { title, description, price, currencyId, currencyFormat, availableSizes }
 
         if (isFreeShipping) {
@@ -109,7 +109,7 @@ const getProducts = async function (req, res) {
             }
         }
         if (Object.keys(productDetail).includes('priceLessThan')) {
-            if (productDetail.priceLessThan.length.trim() == 0) {
+            if (productDetail.priceLessThan.trim().length == 0) {
                 res.status(400).send({ status: false, message: 'you selected the priceLessThan field but value not provided' });
                 return;
             }
@@ -175,6 +175,149 @@ const getProductbyId = async function (req, res) {
     }
 }
 
+const updateProduct = async (req, res) => {
+    try {
+        const productId = req.params.productId
+        if (!validator.isValidObjectId(productId)) {
+            return res.status(400).send({ status: false, message: "Invalid productId" })
+        }
+        const findProduct = await productModel.findOne({_id:productId, isDeleted:false})
+        if (!findProduct) {
+            return res.status(404).send({ status: false, message: "No product found" })
+        }
+        if (Object.keys(req.body).length == 0) {
+            return res.status(400).send({ status: false, message: "Please Provide Necessary Details to create product" })
+        }
+        let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = req.body
+        let productData = {}
+        //title
+        if (title) {
+            if (!validator.isValid(title)) {
+                return res.status(400).send({ status: false, message: "please enter title" })
+            }
+            const findTitle = await productModel.findOne({ title })
+            if (findTitle) {
+                return res.status(409).send({ status: false, message: "product title already present" })
+            }
+            productData.title = title
+        }
+        if (title == "") {
+            return res.status(400).send({ status: false, message: "you selected the title field but value not provided" })
+        }
+
+        //description
+        if (description) {
+            if (!validator.isValid(description)) {
+                return res.status(400).send({ status: false, message: "please enter description" })
+            }
+            productData.description = description
+        }
+        if (description == "") {
+            return res.status(400).send({ status: false, message: "you selected the description field but value not provided" })
+        }
+
+        //price
+        if (price) {
+            if (!validator.isValid(price) || !validator.isValidDecimalNumber(price)) {
+                return res.status(400).send({ status: false, message: "please enter valid price" })
+            }
+            productData.price = price
+        }
+        if (price == "") {
+            return res.status(400).send({ status: false, message: "you selected the price field but value not provided" })
+        }
+
+        //currencyId
+        if (currencyId) {
+            if (!validator.isValid(currencyId) || currencyId.toUpperCase() != "INR") {
+                return res.status(400).send({ status: false, message: "please enter valid currencyId, this field is mandatory, e.g: INR" })
+            }
+            productData.price = currencyId
+        }
+        if (currencyId == "") {
+            return res.status(400).send({ status: false, message: "you selected the currencyId field but value not provided" })
+        }
+        //currencyFormat
+        if (currencyFormat) {
+            if (!validator.isValid(currencyFormat) || currencyFormat != "₹") {
+                return res.status(400).send({ status: false, message: "please enter valid currencyFormat, this field is mandatory, e.g: ₹" })
+            }
+            productData.currencyFormat = currencyFormat
+        }
+        if (currencyFormat == "") {
+            return res.status(400).send({ status: false, message: "you selected the currencyFormat field but value not provided" })
+        }
+        //availableSizes
+        if (availableSizes) {
+            if (!validator.isValid(availableSizes) || !validator.isValidSize(availableSizes)) {
+                return res.status(400).send({ status: false, message: "please enter valid availableSizes, at least on Size, e.g: M" })
+            }
+            availableSizes = availableSizes.split(",").map(a => a.trim().toUpperCase())
+            availableSizes = [...new Set(availableSizes)]
+            productData.availableSizes = { $all: availableSizes }
+        }
+        if (availableSizes == "") {
+            return res.status(400).send({ status: false, message: "you selected the availableSizes field but value not provided" })
+        }
+        //isFreeShipping
+        if (isFreeShipping) {
+            if (isFreeShipping == "true") {
+                productData.isFreeShipping = true
+            }
+            else if (isFreeShipping == "false") {
+                productData.isFreeShipping = true
+            }
+            else {
+                return res.status(400).send({ status: false, message: "isFreeShipping should be true or false" })
+            }
+        }
+        if (isFreeShipping == "") {
+            return res.status(400).send({ status: false, message: "you selected the isFreeShipping field but value not provided" })
+        }
+        //style
+        if (style) {
+            if (!validator.isValid(style)) {
+                return res.status(400).send({ status: false, message: "please enter valid style" })
+            }
+            productData.style = style
+        }
+        if (style == "") {
+            return res.status(400).send({ status: false, message: "you selected the style field but value not provided" })
+        }
+        //installments
+        if (installments) {
+            if (!validator.isValid(installments) || !validator.isValidDecimalNumber(installments)) {
+                return res.status(400).send({ status: false, message: "please enter valid installments" })
+            }
+            productData.installments = installments
+        }
+        if (installments == "") {
+            return res.status(400).send({ status: false, message: "you selected the installments field but value not provided" })
+        }
+
+        //product image
+        const files = req.files
+        if (files.length > 0) {
+            if (files && files.length < 2) {
+                if (!validator.isValidImage(files[0].originalname.toLowerCase())) {
+                    return res.status(400).send({ status: false, message: "Image format is not correct" })
+                }
+                const uploadproductImage = await awsService.uploadImage(files[0])
+                productData.productImage = uploadproductImage
+            }
+            else {
+                return res.status(400).send({ status: false, message: "please provide only one product Image" })
+            }
+        }
+
+        const updatedProduct = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, productData, { new: true });
+        return res.status(200).send({ status: true, message: "product data updated sucessfully", data: updatedProduct })
+    }
+    catch (err) {
+        res.status(500).send({ status: false, message: err.message });
+    }
+}
+
 const deleteProductbyId = async function (req, res) {
     try {
         const productId = req.params.productId
@@ -196,4 +339,4 @@ const deleteProductbyId = async function (req, res) {
     }
 }
 
-module.exports = { createProduct, getProducts, getProductbyId, deleteProductbyId };
+module.exports = { createProduct, getProducts, getProductbyId, updateProduct, deleteProductbyId };

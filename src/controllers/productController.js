@@ -186,7 +186,7 @@ const updateProduct = async (req, res) => {
             return res.status(404).send({ status: false, message: "No product found" })
         }
         if (Object.keys(req.body).length == 0) {
-            return res.status(400).send({ status: false, message: "Please Provide Necessary Details to create product" })
+            return res.status(400).send({ status: false, message: "Please Provide atleast one data to update product" })
         }
         let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = req.body
         let productData = {}
@@ -230,9 +230,9 @@ const updateProduct = async (req, res) => {
         //currencyId
         if (currencyId) {
             if (!validator.isValid(currencyId) || currencyId.toUpperCase() != "INR") {
-                return res.status(400).send({ status: false, message: "please enter valid currencyId, this field is mandatory, e.g: INR" })
+                return res.status(400).send({ status: false, message: "please enter valid currencyId, e.g: INR" })
             }
-            productData.price = currencyId
+            productData.currencyId = currencyId
         }
         if (currencyId == "") {
             return res.status(400).send({ status: false, message: "you selected the currencyId field but value not provided" })
@@ -240,7 +240,7 @@ const updateProduct = async (req, res) => {
         //currencyFormat
         if (currencyFormat) {
             if (!validator.isValid(currencyFormat) || currencyFormat != "₹") {
-                return res.status(400).send({ status: false, message: "please enter valid currencyFormat, this field is mandatory, e.g: ₹" })
+                return res.status(400).send({ status: false, message: "please enter valid currencyFormat, e.g: ₹" })
             }
             productData.currencyFormat = currencyFormat
         }
@@ -250,11 +250,11 @@ const updateProduct = async (req, res) => {
         //availableSizes
         if (availableSizes) {
             if (!validator.isValid(availableSizes) || !validator.isValidSize(availableSizes)) {
-                return res.status(400).send({ status: false, message: "please enter valid availableSizes, at least on Size, e.g: M" })
+                return res.status(400).send({ status: false, message: "please enter valid availableSizes, at least one Size, e.g: M" })
             }
-            availableSizes = availableSizes.split(",").map(a => a.trim().toUpperCase())
+            availableSizes = availableSizes.trim().split(",").map(a => a.trim().toUpperCase())
             availableSizes = [...new Set(availableSizes)]
-            productData.availableSizes = { $all: availableSizes }
+            productData.$addToSet = { availableSizes: { $each :availableSizes} }
         }
         if (availableSizes == "") {
             return res.status(400).send({ status: false, message: "you selected the availableSizes field but value not provided" })

@@ -142,7 +142,16 @@ const getProducts = async function (req, res) {
                 productFilter.price = { $gt: productDetail.priceGreaterThan };
             }
         }
-        let filteredProduct = await productModel.find(productFilter).sort({ price: 1 });
+        let priceSortObj = { price: 1 }
+        if(productDetail.priceSort){
+            if(productDetail.priceSort==1 || productDetail.priceSort==-1){
+            priceSortObj.price = productDetail.priceSort
+            }else{
+                res.status(400).send({status: false, message: 'Please enter valid value for sorting e.g. 1 or -1'})
+                return
+            }
+        }
+        let filteredProduct = await productModel.find(productFilter).sort(priceSortObj);
         if (filteredProduct.length == 0) {
             res.status(404).send({ status: false, message: "No product found!!" });
             return;

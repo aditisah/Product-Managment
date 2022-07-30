@@ -28,7 +28,7 @@ const createProduct = async function (req, res) {
             return res.status(400).send({ status: false, message: "please enter valid currencyFormat, this field is mandatory, e.g: ₹" });
         }
         if (!validator.isValid(availableSizes) || !validator.isValidSize(availableSizes)) {
-            return res.status(400).send({ status: false, message: "please enter valid availableSizes, at least on Size, e.g: M" });
+            return res.status(400).send({ status: false, message: "please enter valid availableSizes, at least one Size, e.g: M" });
         }
         availableSizes = availableSizes.split(",").map((a) => a.trim().toUpperCase());
         availableSizes = [...new Set(availableSizes)];
@@ -40,7 +40,7 @@ const createProduct = async function (req, res) {
                 productData.isFreeShipping = true;
             }
             else if (isFreeShipping == "false") {
-                productData.isFreeShipping = true;
+                productData.isFreeShipping = false;
             }
             else {
                 return res.status(400).send({ status: false, message: "isFreeShipping should be true or false" });
@@ -314,6 +314,9 @@ const updateProduct = async (req, res) => {
             }
         }
 
+        if(Object.keys(productData).length==0){
+            return res.status(400).send({ status: false, message: "Please Provide valid data to update product" })
+        }
         const updatedProduct = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, productData, { new: true });
         return res.status(200).send({ status: true, message: "product data updated sucessfully", data: updatedProduct })
     }

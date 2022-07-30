@@ -2,10 +2,11 @@ const express = require("express");
 const router = express.Router();
 const { updateUser, userLogin, register, getProfile } = require("../controllers/userController");
 const { createProduct, getProducts, getProductbyId, deleteProductbyId, updateProduct } = require("../controllers/productController");
+const { cartUpdate, createCart } = require("../controllers/cartController")
 const { authentication } = require('../middleware/auth');
 
 
-// ========================user routes================================//
+// ========================USER API================================//
 router.post("/register", register);
 router.post("/login", userLogin);
 router.get('/user/:userId/profile', authentication, getProfile);
@@ -17,6 +18,11 @@ router.get("/products", getProducts)
 router.get('/products/:productId', getProductbyId);
 router.put('/products/:productId', updateProduct);
 router.delete('/products/:productId', deleteProductbyId);
+
+//==========================CART API================================//
+
+router.post("/users/:userId/cart", authentication, createCart)
+router.put("/users/:userId/cart", authentication, cartUpdate)
 
 //=================unknown route===================================//
 router.all('/*', function (req, res) {

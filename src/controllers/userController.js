@@ -57,11 +57,10 @@ const register = async function (req, res) {
             address = JSON.parse(userDetails.address)
         }
         catch (error) {
-            return res.status(400).send({ status: false, message: "please enter valid pincode in address" })
+            return res.status(400).send({ status: false, message: "please enter valid address data" })
         }
-
-        if (Object.keys(address).length == 0 || userDetails.address == "") {
-            return res.status(400).send({ status: false, message: "please Enter address, this field is mandatory" })
+        if (Object.keys(address).length == 0 || Object.keys(address).length != 2) {
+            return res.status(400).send({ status: false, message: "please Enter shipping and billing address, this field is mandatory" })
         }
         //shipping address
         if (Object.keys(address.shipping).length == 0 || userDetails.address.shipping == "") {
@@ -386,6 +385,10 @@ const updateUser = async function (req, res) {
                 else {
                     return res.status(400).send({ status: false, message: "please provide only one file" })
                 }
+            }
+
+            if(Object.keys(userObject).length==0){
+                return res.status(400).send({ status: false, message: "Please Provide valid data to update user" })
             }
             const updateduser = await userModel.findByIdAndUpdate(userId, userObject, { new: true });
             return res.status(200).send({ status: true, message: "Success", data: updateduser })

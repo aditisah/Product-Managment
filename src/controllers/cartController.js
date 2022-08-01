@@ -103,7 +103,7 @@ const createCart = async function (req, res) {
         .status(400)
         .send({
           status: false,
-          message: "Cart is not created yet with this cartId",
+          message: "Cart is not created with this cartId",
         });
       return;
     }

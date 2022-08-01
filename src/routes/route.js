@@ -3,7 +3,7 @@ const router = express.Router();
 const { updateUser, userLogin, register, getProfile } = require("../controllers/userController");
 const { createProduct, getProducts, getProductbyId, deleteProductbyId, updateProduct } = require("../controllers/productController");
 const { authentication } = require('../middleware/auth');
-
+const {deleteCartbyId }= require("../controllers/cartController")
 
 // ========================user routes================================//
 router.post("/register", register);
@@ -17,6 +17,8 @@ router.get("/products", getProducts)
 router.get('/products/:productId', getProductbyId);
 router.put('/products/:productId', updateProduct);
 router.delete('/products/:productId', deleteProductbyId);
+router.delete('/users/:userId/cart', deleteCartbyId);
+
 
 //=================unknown route===================================//
 router.all('/*', function (req, res) {

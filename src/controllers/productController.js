@@ -7,7 +7,7 @@ const createProduct = async function (req, res) {
         if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, message: "Please Provide Necessary Details to create product", });
         }
-        let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = req.body;
+        let { title, description, price, isFreeShipping, style, availableSizes, installments } = req.body;
         if (!validator.isValid(title)) {
             return res.status(400).send({ status: false, message: "please enter title, this field is mandatory" });
         }
@@ -21,19 +21,13 @@ const createProduct = async function (req, res) {
         if (!validator.isValid(price) || !validator.isValidDecimalNumber(price)) {
             return res.status(400).send({ status: false, message: "please enter valid price, this field is mandatory" });
         }
-        if (!validator.isValid(currencyId) || currencyId.toUpperCase() != "INR") {
-            return res.status(400).send({ status: false, message: "please enter valid currencyId, this field is mandatory, e.g: INR" });
-        }
-        if (!validator.isValid(currencyFormat) || currencyFormat != "₹") {
-            return res.status(400).send({ status: false, message: "please enter valid currencyFormat, this field is mandatory, e.g: ₹" });
-        }
         if (!validator.isValid(availableSizes) || !validator.isValidSize(availableSizes)) {
             return res.status(400).send({ status: false, message: "please enter valid availableSizes, at least one Size, e.g: M" });
         }
         availableSizes = availableSizes.split(",").map((a) => a.trim().toUpperCase());
         availableSizes = [...new Set(availableSizes)];
 
-        let productData = { title, description, price, currencyId, currencyFormat, availableSizes };
+        let productData = { title, description, price, currencyId:"INR", currencyFormat:"₹", availableSizes };
 
         if (isFreeShipping) {
             if (isFreeShipping == "true") {
@@ -201,7 +195,7 @@ const updateProduct = async (req, res) => {
         if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, message: "Please Provide atleast one data to update product" })
         }
-        let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = req.body
+        let { title, description, price, isFreeShipping, style, availableSizes, installments } = req.body
         let productData = {}
         //title
         if (title) {
@@ -238,27 +232,6 @@ const updateProduct = async (req, res) => {
         }
         if (price == "") {
             return res.status(400).send({ status: false, message: "you selected the price field but value not provided" })
-        }
-
-        //currencyId
-        if (currencyId) {
-            if (!validator.isValid(currencyId) || currencyId.toUpperCase() != "INR") {
-                return res.status(400).send({ status: false, message: "please enter valid currencyId, e.g: INR" })
-            }
-            productData.currencyId = currencyId
-        }
-        if (currencyId == "") {
-            return res.status(400).send({ status: false, message: "you selected the currencyId field but value not provided" })
-        }
-        //currencyFormat
-        if (currencyFormat) {
-            if (!validator.isValid(currencyFormat) || currencyFormat != "₹") {
-                return res.status(400).send({ status: false, message: "please enter valid currencyFormat, e.g: ₹" })
-            }
-            productData.currencyFormat = currencyFormat
-        }
-        if (currencyFormat == "") {
-            return res.status(400).send({ status: false, message: "you selected the currencyFormat field but value not provided" })
         }
         //availableSizes
         if (availableSizes) {

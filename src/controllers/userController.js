@@ -52,6 +52,9 @@ const register = async function (req, res) {
             return
         }
 
+        if(!validator.isValid(userDetails.address)){
+            return res.status(400).send({ status: false, message: "please enter address, this field is mandatory" })
+        }
         let address
         try {
             address = JSON.parse(userDetails.address)
@@ -104,11 +107,11 @@ const register = async function (req, res) {
             return res.status(400).send({ status: false, message: "please enter valid password, length should be between 8 to 15, this field is mandatory." })
         }
         //Encrypting password
-        userObject.password = await bcrypt.hash(userDetails.password,10)
+        userObject.password = await bcrypt.hash(userDetails.password, 10)
 
         //Uploading file
         const files = req.files;
-        if(files.length==0){
+        if (files.length == 0) {
             return res.status(400).send({ status: false, message: "please provide profile Image" })
         }
         if (!validator.isValidImage(files[0].originalname.toLowerCase())) {
@@ -220,15 +223,15 @@ const updateUser = async function (req, res) {
             }
             let userObject = {}
             //fname
+            if (userDetails.fname == "") {
+                return res.status(400).send({ status: false, message: "you selected the firstname field but value not provided" })
+            }
             if (userDetails.fname) {
                 if (!validator.isValid(userDetails.fname)) {
                     res.status(400).send({ status: false, message: "Please Enter vaild firstname" })
                     return
                 }
                 userObject.fname = userDetails.fname;
-            }
-            if (userDetails.fname == "") {
-                return res.status(400).send({ status: false, message: "you selected the firstname field but value not provided" })
             }
             //lname
             if (userDetails.lname) {
@@ -242,6 +245,9 @@ const updateUser = async function (req, res) {
                 return res.status(400).send({ status: false, message: "you selected the lastname field but value not provided" })
             }
             //email
+            if (userDetails.email == "") {
+                return res.status(400).send({ status: false, message: "you selected the email field but value not provided" })
+            }
             if (userDetails.email) {
                 if (!validator.isValidEmail(userDetails.email)) {
                     res.status(400).send({ status: false, message: "Please Enter valid email" })
@@ -253,10 +259,10 @@ const updateUser = async function (req, res) {
                 }
                 userObject.email = userDetails.email
             }
-            if (userDetails.email == "") {
-                return res.status(400).send({ status: false, message: "you selected the email field but value not provided" })
-            }
             //phone
+            if (userDetails.phone == "") {
+                return res.status(400).send({ status: false, message: "you selected the phone field but value not provided" })
+            }
             if (userDetails.phone) {
                 if (!validator.isValidPhone(userDetails.phone)) {
                     res.status(400).send({ status: false, message: "Please Enter valid phone" })
@@ -268,25 +274,34 @@ const updateUser = async function (req, res) {
                 }
                 userObject.phone = userDetails.phone
             }
-            if (userDetails.phone == "") {
-                return res.status(400).send({ status: false, message: "you selected the phone field but value not provided" })
-            }
             //address
+            if (userDetails.address == "") {
+                return res.status(400).send({ status: false, message: "you selected the address field but value not provided" })
+            }
             if (userDetails.address) {
+                if(!validator.isValid(userDetails.address)){
+                    return res.status(400).send({ status: false, message: "please enter valid address data" })
+                }
                 let address
                 try {
                     address = JSON.parse(userDetails.address)
                 }
                 catch (error) {
-                    return res.status(400).send({ status: false, message: "please enter valid pincode in address" })
+                    return res.status(400).send({ status: false, message: "please enter valid address data" })
                 }
                 if (Object.keys(address).length == 0) {
                     return res.status(400).send({ status: false, message: "Please Enter shipping or biling address" })
                 }
                 //shipping address
+                if (address.shipping == "") {
+                    return res.status(400).send({ status: false, message: "you selected the shipping address field but value not provided" })
+                }
                 if (address.shipping) {
                     if (Object.keys(address.shipping).length == 0) {
                         return res.status(400).send({ status: false, message: "Please Enter something in shipping address to update" })
+                    }
+                    if (address.shipping.street == "") {
+                        return res.status(400).send({ status: false, message: "you selected the shipping address street field but value not provided" })
                     }
                     if (address.shipping.street) {
                         if (!validator.isValid(address.shipping.street)) {
@@ -294,7 +309,7 @@ const updateUser = async function (req, res) {
                         }
                         userObject["address.shipping.street"] = address.shipping.street
                     }
-                    if (address.shipping.street == "") {
+                    if (address.shipping.city == "") {
                         return res.status(400).send({ status: false, message: "you selected the shipping address street field but value not provided" })
                     }
                     if (address.shipping.city) {
@@ -303,8 +318,8 @@ const updateUser = async function (req, res) {
                         }
                         userObject["address.shipping.city"] = address.shipping.city
                     }
-                    if (address.shipping.city == "") {
-                        return res.status(400).send({ status: false, message: "you selected the shipping address street field but value not provided" })
+                    if (address.shipping.pincode == "") {
+                        return res.status(400).send({ status: false, message: "you selected the shipping address pincode field but value not provided" })
                     }
                     if (address.shipping.pincode) {
                         if (!validator.isValidPincode(address.shipping.pincode)) {
@@ -312,17 +327,17 @@ const updateUser = async function (req, res) {
                         }
                         userObject["address.shipping.pincode"] = address.shipping.pincode
                     }
-                    if (address.shipping.pincode == "") {
-                        return res.status(400).send({ status: false, message: "you selected the shipping address pincode field but value not provided" })
-                    }
-                }
-                if (address.shipping == "") {
-                    return res.status(400).send({ status: false, message: "you selected the shipping address field but value not provided" })
                 }
                 //billing address
+                if (address.billing == "") {
+                    return res.status(400).send({ status: false, message: "you selected the billing address field but value not provided" })
+                }
                 if (address.billing) {
                     if (Object.keys(address.billing).length == 0) {
                         return res.status(400).send({ status: false, message: "Please Enter something in billing address to update" })
+                    }
+                    if (address.billing.street == "") {
+                        return res.status(400).send({ status: false, message: "you selected the billing address street field but value not provided" })
                     }
                     if (address.billing.street) {
                         if (!validator.isValid(address.billing.street)) {
@@ -330,7 +345,7 @@ const updateUser = async function (req, res) {
                         }
                         userObject["address.billing.street"] = address.billing.street
                     }
-                    if (address.billing.street == "") {
+                    if (address.billing.city == "") {
                         return res.status(400).send({ status: false, message: "you selected the billing address street field but value not provided" })
                     }
                     if (address.billing.city) {
@@ -339,8 +354,8 @@ const updateUser = async function (req, res) {
                         }
                         userObject["address.billing.city"] = address.billing.city
                     }
-                    if (address.billing.city == "") {
-                        return res.status(400).send({ status: false, message: "you selected the billing address street field but value not provided" })
+                    if (address.billing.pincode == "") {
+                        return res.status(400).send({ status: false, message: "you selected the billing address pincode field but value not provided" })
                     }
                     if (address.billing.pincode) {
                         if (!validator.isValidPincode(address.billing.pincode)) {
@@ -348,28 +363,19 @@ const updateUser = async function (req, res) {
                         }
                         userObject["address.billing.pincode"] = address.billing.pincode
                     }
-                    if (address.billing.pincode == "") {
-                        return res.status(400).send({ status: false, message: "you selected the billing address pincode field but value not provided" })
-                    }
                 }
-                if (address.billing == "") {
-                    return res.status(400).send({ status: false, message: "you selected the billing address field but value not provided" })
-                }
-            }
-            if (userDetails.address == "") {
-                return res.status(400).send({ status: false, message: "you selected the address field but value not provided" })
             }
 
             //password
+            if (userDetails.password == "") {
+                return res.status(400).send({ status: false, message: "you selected the password field but value not provided" })
+            }
             if (userDetails.password) {
                 if (!validator.isValidPassword(userDetails.password)) {
                     return res.status(400).send({ status: false, message: "password length should be between 8 to 15" })
                 }
                 //Encrypting password
                 userObject.password = await bcrypt.hash(userDetails.password, 10)
-            }
-            if (userDetails.password == "") {
-                return res.status(400).send({ status: false, message: "you selected the password field but value not provided" })
             }
 
             //Uploading profile image
@@ -387,7 +393,7 @@ const updateUser = async function (req, res) {
                 }
             }
 
-            if(Object.keys(userObject).length==0){
+            if (Object.keys(userObject).length == 0) {
                 return res.status(400).send({ status: false, message: "Please Provide valid data to update user" })
             }
             const updateduser = await userModel.findByIdAndUpdate(userId, userObject, { new: true });

@@ -97,13 +97,13 @@ const createCart = async function (req, res) {
       return;
     }
   } else {
-    const isCartCreated = await cartModel.findOne({ _id: cartId });
+    const isCartCreated = await cartModel.findOne({ _id: cartId, userId: userId });
     if (!isCartCreated) {
       res
         .status(400)
         .send({
           status: false,
-          message: "Cart is not created yet with this cartId",
+          message: "Cart is not created with this cartId",
         });
       return;
     }

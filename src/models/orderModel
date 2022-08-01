@@ -1,0 +1,48 @@
+const mongoose = require("mongoose")
+const ObjectId = mongoose.Schema.Types.ObjectId;
+const orderSchema = new mongoose.Schema({ 
+
+    userId: {
+        type: ObjectId,
+        ref: "User",
+        required: true,
+        unique: true,
+      },
+    items: [{
+      productId: {
+        type: ObjectId, 
+        ref: "product", 
+        required: true},
+      quantity: {
+        type:number, 
+        required:true}  // min :1//
+    }],
+    totalPrice: {
+        type:number, 
+        required:true, //comment: "Holds total price of all the items in the cart"//
+    },
+    totalItems: {
+        type:number, 
+        required:true, //comment: "Holds total number of items in the cart"
+    },
+    totalQuantity: {
+        type:number, 
+        required:true, //comment: "Holds total number of quantity in the cart"
+    },
+    cancellable: {
+        type:boolean, 
+        default: true
+    },
+    status: {
+        type:string, 
+        default: 'pending', 
+        enum:[pending, completed, cancled]
+    },
+    deletedAt: Date ,
+    isDeleted: {
+        type:boolean, 
+        default: false
+    },
+
+}, { timestamps: true })
+module.exports=mongoose.model('order',orderSchema)

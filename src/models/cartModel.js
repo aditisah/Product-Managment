@@ -29,6 +29,6 @@ const cartSchema = new mongoose.Schema({
     type: Number,
     required: true, //comment: "Holds total number of items in the cart"
   },
-});
+}, { timestamps: true });
 
-exports.module = mongoose.model("Cart", cartSchema);
+module.exports = mongoose.model("Cart", cartSchema);

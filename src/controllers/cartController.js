@@ -152,7 +152,7 @@ const getCart = async (req, res) => {
       if(req.userId != userData._id.toString()) return res.status(400).json({status: false, message: 'You are not authorize'});
 
       let cartData = await cartModel.findOne({userId});
-      if(!cartData) return res.status(404).json({status: false, message: 'Cart does not exist'});
+      if(!cartData) return res.status(404).json({status: false, message: `You haven't added any products to your cart`});
       res.status(200).json({status: true, message: 'Cart details', data: cartData});
   }
   catch(err){

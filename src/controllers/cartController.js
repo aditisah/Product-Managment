@@ -271,7 +271,7 @@ const deleteCart = async (req, res) => {
       if (!userData) {
           return res.status(404).send({ status: false, message: `User does not exist` });
       }
-      if (req.userId != userData._id) {
+      if (req.userId != userId) {
           return res.status(400).send({ status: false, message: 'You are not authorize to delete another cart' });
       }
 

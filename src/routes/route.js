@@ -4,7 +4,8 @@ const { updateUser, userLogin, register, getProfile } = require("../controllers/
 const { createProduct, getProducts, getProductbyId, deleteProductbyId, updateProduct } = require("../controllers/productController");
 //const { createCart } = require("../controllers/cartController")
 const { authentication } = require('../middleware/auth');
-const {deleteCartbyId }= require("../controllers/cartController")
+//const {deleteCartbyId }= require("../controllers/cartController")
+const {createOrder }= require("../controllers/orderController")
 
 // ========================user routes================================//
 router.post("/register", register);
@@ -20,7 +21,9 @@ router.put('/products/:productId', updateProduct);
 router.delete('/products/:productId', deleteProductbyId);
 //==========================CART API================================//
 //router.post("/users/:userId/cart", authentication, createCart);
-router.delete('/users/:userId/cart', deleteCartbyId);
+//router.delete('/users/:userId/cart', deleteCartbyId);
+//=========================Order API ==============================//
+router.post('/users/:userId/orders' ,createOrder)
 
 //=================unknown route===================================//
 router.all('/*', function (req, res) {

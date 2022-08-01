@@ -14,33 +14,33 @@ const orderSchema = new mongoose.Schema({
         ref: "product", 
         required: true},
       quantity: {
-        type:number, 
+        type:Number, 
         required:true}  // min :1//
     }],
     totalPrice: {
-        type:number, 
+        type:Number, 
         required:true, //comment: "Holds total price of all the items in the cart"//
     },
     totalItems: {
-        type:number, 
+        type:Number, 
         required:true, //comment: "Holds total number of items in the cart"
     },
     totalQuantity: {
-        type:number, 
+        type:Number, 
         required:true, //comment: "Holds total number of quantity in the cart"
     },
     cancellable: {
-        type:boolean, 
+        type:Boolean, 
         default: true
     },
     status: {
-        type:string, 
-        default: 'pending', 
-        enum:[pending, completed, cancled]
+        type:String,  
+        enum:["pending","completed", "cancled"],
+        default: "pending",
     },
     deletedAt: Date ,
     isDeleted: {
-        type:boolean, 
+        type:Boolean, 
         default: false
     },
 

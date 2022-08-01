@@ -107,9 +107,10 @@ const createCart = async function (req, res) {
         });
       return;
     }
-      const isProductExistInCart = await cartModel.findOne({_id: cartId, items: {$elemMatch: {productId}}})
+      //const isProductExistInCart = await cartModel.findOne({_id: cartId, items: {$elemMatch: {productId}}})
+      const isProductExistInCart = isCartCreated.items.map(el=>el.productId.toString())
       const addedProductDetail = {}
-      if(!isProductExistInCart){
+      if(!isProductExistInCart.includes(productId)){
     let items = {
       productId: productId,
       quantity: quantity
@@ -120,7 +121,6 @@ const createCart = async function (req, res) {
     //console.log(isCartCreated.items)
       }else{
        // console.log(isCartCreated)
-        console.log(isProductExistInCart.items.productId)
         addedProductDetail.items = isCartCreated.items.map(el=>{
           console.log(el.productId)
         if(el.productId==productId){

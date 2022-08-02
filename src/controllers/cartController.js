@@ -166,7 +166,7 @@ const cartUpdate = async function (req, res) {
                 return res.status(404).send({ status: false, message: "Product Not Found in Your Cart" })
             }
             //removeProduct
-            if (!removeProduct) {
+            if (!removeProduct.toString()) {
                 return res.status(400).send({ status: false, message: "Please Enter removeProduct, this field is mandatory" })
             }
             if (removeProduct == 0 || removeProduct == 1) {
@@ -187,7 +187,7 @@ const cartUpdate = async function (req, res) {
                     }
                 }
                 //update cart
-                const updateCart = await cartModel.findOneAndUpdate({ _id: cartId, items: { $elemMatch: { productId: productId } } }, filteredProduct, { new: true })
+                const updateCart = await cartModel.findOneAndUpdate({ _id: cartId, items: { $elemMatch: { productId: productId } } }, filteredProduct, { new: true }).populate('items.productId', { _id: 0, title: 1, description: 1, price: 1, productImage: 1, style: 1 })
                 return res.status(200).send({ status: true, message: "cart update successfully", data: updateCart })
             }
             else {
@@ -249,7 +249,7 @@ const deleteCart = async (req, res) => {
         if (!cartData) {
             return res.status(404).send({ status: false, message: 'Cart does not exist' });
         }
-        let deletion = await cartModel.findOneAndUpdate({ userId }, { items: [], totalPrice: 0, totalItems: 0  });
+        let deletion = await cartModel.findOneAndUpdate({ userId }, { items: [], totalPrice: 0, totalItems: 0 });
         res.status(204).send({ status: false, message: 'Cart deleted successfully', data: deletion });
     }
     catch (err) {

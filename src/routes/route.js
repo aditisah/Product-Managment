@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { updateUser, userLogin, register, getProfile } = require("../controllers/userController");
 const { createProduct, getProducts, getProductbyId, deleteProductbyId, updateProduct } = require("../controllers/productController");
-const { createCart, updateProduct, getCart, deleteCart } = require("../controllers/cartController")
+const { createCart, cartUpdate, getCart, deleteCart } = require("../controllers/cartController")
 const { authentication } = require('../middleware/auth');
 
 
@@ -22,9 +22,9 @@ router.delete('/products/:productId', deleteProductbyId);
 //==========================CART API================================//
 
 router.post("/users/:userId/cart", authentication, createCart)
-router.get('/users/:userId/cart', getCart);
+router.get('/users/:userId/cart', authentication, getCart);
 router.put("/users/:userId/cart", authentication, cartUpdate)
-router.delete('/users/:userId/cart', deleteCart);
+router.delete('/users/:userId/cart', authentication, deleteCart);
 
 //=================unknown route===================================//
 router.all('/*', function (req, res) {

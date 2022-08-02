@@ -47,7 +47,6 @@ const createCart = async function (req, res) {
             }
         }
 
-
         if (userId !== req.userId) {
             res.status(403).send({ status: false, message: "userId does not match with loggedin user id" });
             return;
@@ -207,7 +206,7 @@ const cartUpdate = async function (req, res) {
 const getCart = async (req, res) => {
     try {
         let userId = req.params.userId;
-        if (!isValidObjectId(userId)) {
+        if (!validator.isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: `Invalid user id` });
         }
 
@@ -215,7 +214,7 @@ const getCart = async (req, res) => {
         if (!userData) {
             return res.status(404).send({ status: false, message: `User does not exist` });
         }
-        if (req.userId != userData._id.toString()) {
+        if (req.userId != userData._id) {
             return res.status(400).send({ status: false, message: "You are not authorize to see other's cart" });
         }
 
@@ -223,7 +222,7 @@ const getCart = async (req, res) => {
         if (!cartData) {
             return res.status(404).send({ status: false, message: `You haven't added any products to your cart` });
         }
-        res.status(200).send({ status: true, message: 'Cart details' });
+        res.status(200).send({ status: true, message: 'Cart details', data: cartData });
     }
     catch (err) {
         res.status(500).send({ status: false, message: err.message });
@@ -233,7 +232,8 @@ const getCart = async (req, res) => {
 const deleteCart = async (req, res) => {
     try {
         let userId = req.params.userId;
-        if (!isValidObjectId(userId)) {
+
+        if (!validator.isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: `Invalid user id` });
         }
 
@@ -241,15 +241,15 @@ const deleteCart = async (req, res) => {
         if (!userData) {
             return res.status(404).send({ status: false, message: `User does not exist` });
         }
-        if (req.userId != userData._id.toString()) {
-            return res.status(400).send({ status: false, message: 'You are not authorize' });
+        if (req.userId != userData._id) {
+            return res.status(400).send({ status: false, message: 'You are not authorize to delete another cart' });
         }
 
         let cartData = await cartModel.findOne({ userId });
         if (!cartData) {
             return res.status(404).send({ status: false, message: 'Cart does not exist' });
         }
-        let deletion = await cartModel.findOneAndUpdate({ userId }, { $set: { items: [], totalPrice: 0, totalItems: 0 } });
+        let deletion = await cartModel.findOneAndUpdate({ userId }, { items: [], totalPrice: 0, totalItems: 0  });
         res.status(204).send({ status: false, message: 'Cart deleted successfully', data: deletion });
     }
     catch (err) {

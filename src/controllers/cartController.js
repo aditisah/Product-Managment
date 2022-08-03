@@ -216,7 +216,8 @@ const updateCart = async function (req, res) {
                     }
                 }
                 //update cart
-                const updateCart = await cartModel.findOneAndUpdate({ _id: cartId, items: { $elemMatch: { productId: productId } } }, filteredProduct, { new: true }).populate('items.productId', { _id: 0, title: 1, description: 1, price: 1, productImage: 1, style: 1 })
+                const updateCart = await cartModel.findOneAndUpdate({ _id: cartId, items: { $elemMatch: { productId: productId } } }, filteredProduct, { new: true })
+                                                  .populate('items.productId', { _id: 0, title: 1, description: 1, price: 1, productImage: 1, style: 1 })
                 return res.status(200).send({ status: true, message: "cart update successfully", data: updateCart })
             }
             else {

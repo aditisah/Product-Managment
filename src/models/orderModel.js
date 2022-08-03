@@ -35,7 +35,7 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type:String,  
-        enum:["pending","completed", "cancled"],
+        enum:["pending","completed","canceled"],
         default: "pending",
     },
     deletedAt: Date ,
@@ -45,4 +45,4 @@ const orderSchema = new mongoose.Schema({
     },
 
 }, { timestamps: true })
-module.exports=mongoose.model('order',orderSchema)
+module.exports=mongoose.model('Order',orderSchema)

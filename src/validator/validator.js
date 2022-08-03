@@ -66,4 +66,9 @@ const isValidSize = function (value) {
     }
 }
 
-module.exports = { isValidEmail, isValidPassword, isValid, isValidDecimalNumber, isValidPhone, isValidPincode, isValidImage, isValidObjectId, isValidSize }
+const isValidOrderStatus = function(value){
+    const orderStatusArr = ["pending","completed","canceled"]
+    if(orderStatusArr.includes(value))
+    return true
+}
+module.exports = { isValidEmail, isValidPassword, isValid, isValidDecimalNumber, isValidPhone, isValidPincode, isValidImage, isValidObjectId, isValidSize, isValidOrderStatus }

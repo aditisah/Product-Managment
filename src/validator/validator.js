@@ -68,7 +68,7 @@ const isValidSize = function (value) {
 
 const isValidOrderStatus = function(value){
     const orderStatusArr = ["pending","completed","canceled"]
-    if(orderStatusArr.includes(value))
+    if(orderStatusArr.includes(value.trim()))
     return true
 }
 module.exports = { isValidEmail, isValidPassword, isValid, isValidDecimalNumber, isValidPhone, isValidPincode, isValidImage, isValidObjectId, isValidSize, isValidOrderStatus }

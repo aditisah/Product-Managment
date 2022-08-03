@@ -19,8 +19,8 @@ router.get("/products", getProducts)
 router.get('/products/:productId', getProductbyId);
 router.put('/products/:productId', updateProduct);
 router.delete('/products/:productId', deleteProductbyId);
-//==========================CART API================================//
 
+//==========================CART API================================//
 router.post("/users/:userId/cart", authentication, createCart)
 router.get('/users/:userId/cart', authentication, getCart);
 router.put("/users/:userId/cart", authentication, updateCart)

@@ -55,9 +55,8 @@ const register = async function (req, res) {
         if(!validator.isValid(userDetails.address)){
             return res.status(400).send({ status: false, message: "please enter address, this field is mandatory" })
         }
-        let address
         try {
-            address = JSON.parse(userDetails.address)
+            var address = JSON.parse(userDetails.address)
         }
         catch (error) {
             return res.status(400).send({ status: false, message: "please enter valid address data" })
@@ -282,12 +281,11 @@ const updateUser = async function (req, res) {
                 if(!validator.isValid(userDetails.address)){
                     return res.status(400).send({ status: false, message: "please enter valid address data" })
                 }
-                let address
                 try {
-                    address = JSON.parse(userDetails.address)
+                    var address = JSON.parse(userDetails.address)
                 }
                 catch (error) {
-                    return res.status(400).send({ status: false, message: "please enter valid address data" })
+                    return res.status(400).send({ status: false, message: "please enter valid pincode in address" })
                 }
                 if (Object.keys(address).length == 0) {
                     return res.status(400).send({ status: false, message: "Please Enter shipping or biling address" })
@@ -404,7 +402,7 @@ const updateUser = async function (req, res) {
         }
     }
     catch (error) {
-        res.status(500).send({ status: false, message: error.message })
+        res.status(500).send({ status: false, message: {error: error.message, message:"error"} })
     }
 }
 

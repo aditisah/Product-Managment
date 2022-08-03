@@ -2,70 +2,50 @@ const cartModel = require("../models/cartModel");
 const productModel = require("../models/productModel");
 const userModel = require("../models/userModel");
 const validator = require("../validator/validator");
+
 const createCart = async function (req, res) {
     try {
         const userId = req.params.userId;
         const { cartId, productId } = req.body;
         if (req.body.quantity <= 0) {
-            res
-                .status(400)
-                .send({ status: false, message: "Please enter the quantity of the product atleast 1" });
+            res.status(400).send({ status: false, message: "Please enter the quantity of the product atleast 1" });
             return;
         }
         const quantity = req.body.quantity ? req.body.quantity : 1;
 
         if (userId) {
             if (!validator.isValidObjectId(userId)) {
-                res
-                    .status(400)
-                    .send({ status: false, message: "userId is not valid id" });
+                res.status(400).send({ status: false, message: "userId is not valid id" });
                 return;
             }
         }
 
         if (Object.keys(req.body).length == 0) {
-            res
-                .status(400)
-                .send({ status: false, message: "Please add product to the cart" });
+            res.status(400).send({ status: false, message: "Please add product to the cart" });
             return;
         }
         if (!validator.isValid(productId)) {
-            res
-                .status(400)
-                .send({ status: false, message: "Please enter productId" });
+            res.status(400).send({ status: false, message: "Please enter productId" });
             return;
         }
         if (cartId) {
             if (!validator.isValidObjectId(cartId)) {
-                res
-                    .status(400)
-                    .send({ status: false, message: "cartId is not valid id" });
+                res.status(400).send({ status: false, message: "cartId is not valid id" });
                 return;
             }
         }
         if (productId) {
             if (!validator.isValidObjectId(productId)) {
-                res
-                    .status(400)
-                    .send({ status: false, message: "productId is not valid id" });
+                res.status(400).send({ status: false, message: "productId is not valid id" });
                 return;
             }
         }
-
-
+        
         if (userId !== req.userId) {
-            res
-                .status(403)
-                .send({
-                    status: false,
-                    message: "userId does not match with loggedin user id",
-                });
+            res.status(403).send({ status: false, message: "userId does not match with loggedin user id" });
             return;
         }
-        const isProductExist = await productModel.findOne({
-            _id: productId,
-            isDeleted: false,
-        });
+        const isProductExist = await productModel.findOne({ _id: productId, isDeleted: false, });
         if (!isProductExist) {
             res.status(404).send({ status: false, message: "Product not found" });
             return;
@@ -73,17 +53,12 @@ const createCart = async function (req, res) {
         if (!cartId) {
             const isCartCreatedWithUser = await cartModel.findOne({ userId });
             if (isCartCreatedWithUser) {
-                res
-                    .status(400)
-                    .send({
-                        status: false,
-                        message:
-                            "Please provide cartId,cart already has been created with this user!!",
-                    });
+                res.status(400).send({ status: false, message: "Please provide cartId,cart already has been created with this user!!" });
                 return;
-            } else {
-                console.log(isProductExist.price)
-                console.log(quantity)
+            }
+            else {
+                // console.log(isProductExist.price)
+                // console.log(quantity)
                 const cartDeatils = {
                     userId: userId,
                     items: {
@@ -97,15 +72,11 @@ const createCart = async function (req, res) {
                 res.status(201).send({ status: true, data: newCart });
                 return;
             }
-        } else {
+        }
+        else {
             const isCartCreated = await cartModel.findOne({ _id: cartId, userId: userId });
             if (!isCartCreated) {
-                res
-                    .status(400)
-                    .send({
-                        status: false,
-                        message: "Cart is not created with this cartId",
-                    });
+                res.status(400).send({ status: false, message: "Cart is not created with this cartId" });
                 return;
             }
             //const isProductExistInCart = await cartModel.findOne({_id: cartId, items: {$elemMatch: {productId}}})
@@ -120,23 +91,20 @@ const createCart = async function (req, res) {
                 addedProductDetail.items = isCartCreated.items
 
                 //console.log(isCartCreated.items)
-            } else {
+            }
+            else {
                 // console.log(isCartCreated)
                 addedProductDetail.items = isCartCreated.items.map(el => {
-                    console.log(el.productId)
+                    // console.log(el.productId)
                     if (el.productId == productId) {
                         el.quantity += quantity
                     }
                     return el
                 })
             }
-            addedProductDetail.totalPrice = isCartCreated.totalPrice + (isProductExist.price * quantity),
-                addedProductDetail.totalItems = addedProductDetail.items.length
-            let addProductToCart = await cartModel.findOneAndUpdate(
-                { userId: userId },
-                addedProductDetail,
-                { new: true }
-            );
+            addedProductDetail.totalPrice = isCartCreated.totalPrice + (isProductExist.price * quantity)
+            addedProductDetail.totalItems = addedProductDetail.items.length
+            let addProductToCart = await cartModel.findOneAndUpdate({ userId: userId }, addedProductDetail, { new: true });
 
             res.status(200).send({ status: true, data: addProductToCart });
             return;
@@ -144,6 +112,32 @@ const createCart = async function (req, res) {
     }
     catch (err) {
         res.status(500).send({ status: false, message: err.message })
+    }
+}
+
+const getCart = async (req, res) => {
+    try {
+        let userId = req.params.userId;
+        if (!validator.isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: `Invalid user id` });
+        }
+
+        let userData = await userModel.findById(userId);
+        if (!userData) {
+            return res.status(404).send({ status: false, message: `User does not exist` });
+        }
+        if (req.userId != userData._id) {
+            return res.status(400).send({ status: false, message: "You are not authorize to see other's cart" });
+        }
+
+        let cartData = await cartModel.findOne({ userId }).populate('items.productId', { _id: 0, title: 1, description: 1, price: 1, productImage: 1, style: 1 });
+        if (!cartData) {
+            return res.status(404).send({ status: false, message: `You haven't added any products to your cart` });
+        }
+        res.status(200).send({ status: true, message: 'Cart details', data: cartData });
+    }
+    catch (err) {
+        res.status(500).send({ status: false, message: err.message });
     }
 }
 
@@ -187,7 +181,7 @@ const updateCart = async function (req, res) {
             }
             const findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
             if (!findProduct) {
-                return res.status(404).send({ status: false, message: "Product Not Found" })
+                return res.status(404).send({ status: false, message: "Product Not Found in collection or database" })
             }
             //finding product Index number
             const findProductIndexFromCart = findCart.items.findIndex(product => product.productId == productId)
@@ -195,7 +189,7 @@ const updateCart = async function (req, res) {
                 return res.status(404).send({ status: false, message: "Product Not Found in Your Cart" })
             }
             //removeProduct
-            if (!removeProduct.toString()) {
+            if (!Object.keys(req.body).includes("removeProduct") || !validator.isValid(removeProduct)) {
                 return res.status(400).send({ status: false, message: "Please Enter removeProduct, this field is mandatory" })
             }
             if (removeProduct == 0 || removeProduct == 1) {
@@ -230,32 +224,6 @@ const updateCart = async function (req, res) {
     }
     catch (err) {
         return res.status(500).send({ status: false, message: err.message })
-    }
-}
-
-const getCart = async (req, res) => {
-    try {
-        let userId = req.params.userId;
-        if (!validator.isValidObjectId(userId)) {
-            return res.status(400).send({ status: false, message: `Invalid user id` });
-        }
-
-        let userData = await userModel.findById(userId);
-        if (!userData) {
-            return res.status(404).send({ status: false, message: `User does not exist` });
-        }
-        if (req.userId != userData._id) {
-            return res.status(400).send({ status: false, message: "You are not authorize to see other's cart" });
-        }
-
-        let cartData = await cartModel.findOne({ userId });
-        if (!cartData) {
-            return res.status(404).send({ status: false, message: `You haven't added any products to your cart` });
-        }
-        res.status(200).send({ status: true, message: 'Cart details', data: cartData });
-    }
-    catch (err) {
-        res.status(500).send({ status: false, message: err.message });
     }
 }
 

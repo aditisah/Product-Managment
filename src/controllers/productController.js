@@ -27,7 +27,7 @@ const createProduct = async function (req, res) {
         availableSizes = availableSizes.split(",").map((a) => a.trim().toUpperCase());
         availableSizes = [...new Set(availableSizes)];
 
-        let productData = { title, description, price, currencyId:"INR", currencyFormat:"₹", availableSizes };
+        let productData = { title, description, price, currencyId: "INR", currencyFormat: "₹", availableSizes };
 
         if (isFreeShipping) {
             if (isFreeShipping == "true") {
@@ -137,11 +137,12 @@ const getProducts = async function (req, res) {
             }
         }
         let priceSortObj = { price: 1 }
-        if(productDetail.priceSort){
-            if(productDetail.priceSort==1 || productDetail.priceSort==-1){
-            priceSortObj.price = productDetail.priceSort
-            }else{
-                res.status(400).send({status: false, message: 'Please enter valid value for sorting e.g. 1 or -1'})
+        if (productDetail.priceSort) {
+            if (productDetail.priceSort == 1 || productDetail.priceSort == -1) {
+                priceSortObj.price = productDetail.priceSort
+            }
+            else {
+                res.status(400).send({ status: false, message: 'Please enter valid value for sorting e.g. 1 or -1' })
                 return
             }
         }
@@ -296,7 +297,7 @@ const updateProduct = async (req, res) => {
             }
         }
 
-        if(Object.keys(productData).length==0){
+        if (Object.keys(productData).length == 0) {
             return res.status(400).send({ status: false, message: "Please Provide valid data to update product" })
         }
         const updatedProduct = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, productData, { new: true });

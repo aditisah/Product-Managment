@@ -40,6 +40,12 @@ const createCart = async function (req, res) {
                 return;
             }
         }
+        const isUserExist =await userModel.findById(userId);
+
+        if(!isUserExist){
+            res.status(404).send({status: false, message: 'User not found!!!'})
+            return
+        }
         
         if (userId !== req.userId) {
             res.status(403).send({ status: false, message: "userId does not match with loggedin user id" });
@@ -127,7 +133,7 @@ const getCart = async (req, res) => {
             return res.status(404).send({ status: false, message: `User does not exist` });
         }
         if (req.userId != userData._id) {
-            return res.status(400).send({ status: false, message: "You are not authorize to see other's cart" });
+            return res.status(403).send({ status: false, message: "You are not authorize to see other's cart" });
         }
 
         let cartData = await cartModel.findOne({ userId }).populate('items.productId', { _id: 0, title: 1, description: 1, price: 1, productImage: 1, style: 1 });
@@ -240,7 +246,7 @@ const deleteCart = async (req, res) => {
             return res.status(404).send({ status: false, message: `User does not exist` });
         }
         if (req.userId != userId) {
-            return res.status(400).send({ status: false, message: 'You are not authorize to delete another cart' });
+            return res.status(403).send({ status: false, message: 'You are not authorize to delete another cart' });
         }
 
         let cartData = await cartModel.findOne({ userId });

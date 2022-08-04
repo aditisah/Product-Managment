@@ -1,5 +1,10 @@
 const { isValidObjectId } = require("mongoose")
 
+const isValidTitle = function(value) {
+const regName = /^[A-Za-z ]+$/
+return regName.test(value)
+}
+
 const isValidEmail = function (value) {
     const regEx = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/
     return regEx.test(value)
@@ -72,4 +77,9 @@ const isValidOrderStatus = function(value){
     return false
 }
 
-module.exports = { isValidEmail, isValidPassword, isValid, isValidDecimalNumber, isValidPhone, isValidPincode, isValidImage, isValidObjectId, isValidSize, isValidOrderStatus }
+const isValueWithoutSpaces = function(value) {
+   let finalValue= value.trim().split(' ').filter(word=>word).join('')
+   return finalValue
+}
+
+module.exports = { isValidTitle, isValidEmail, isValidPassword, isValid, isValidDecimalNumber, isValidPhone, isValidPincode, isValidImage, isValidObjectId, isValidSize, isValidOrderStatus, isValueWithoutSpaces }

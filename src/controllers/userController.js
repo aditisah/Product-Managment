@@ -17,16 +17,30 @@ const register = async function (req, res) {
             res.status(400).send({ status: false, message: "Please Enter firstname" })
             return
         }
-        userObject.fname = userDetails.fname;
+        if(!validator.isValidTitle(userDetails.fname)){
+            res.status(400).send({ status: false, message: "Please Enter valid firstname" })
+            return
+        }
+        let trimmedFname = validator.isValueWithoutSpaces(userDetails.fname);
+        userObject.fname = trimmedFname;
 
         if (!userDetails.lname || !validator.isValid(userDetails.lname)) {
             res.status(400).send({ status: false, message: "Please Enter lastname" })
             return
         }
-        userObject.lname = userDetails.lname;
+        if(!validator.isValidTitle(userDetails.lname)){
+            res.status(400).send({ status: false, message: "Please Enter valid lastname" })
+            return
+        }
+        let trimmedLname = validator.isValueWithoutSpaces(userDetails.lname);
+        userObject.lname = trimmedLname;
 
-        if (!userDetails.email || !validator.isValidEmail(userDetails.email)) {
+        if (!userDetails.email || !validator.isValid(userDetails.email)) {
             res.status(400).send({ status: false, message: "Please Enter email" })
+            return
+        }
+        if (!validator.isValidEmail(userDetails.email)) {
+            res.status(400).send({ status: false, message: "Please Enter valid email" })
             return
         }
         userObject.email = userDetails.email
@@ -36,7 +50,7 @@ const register = async function (req, res) {
             return
         }
 
-        if (!userDetails.phone || !validator.isValidPhone(userDetails.phone)) {
+        if (!userDetails.phone || !validator.isValid(userDetails.phone)) {
             res.status(400).send({ status: false, message: "Please Enter phone number" })
             return
         }
@@ -230,7 +244,7 @@ const updateUser = async function (req, res) {
                     res.status(400).send({ status: false, message: "Please Enter vaild firstname" })
                     return
                 }
-                userObject.fname = userDetails.fname;
+                userObject.fname = validator.isValueWithoutSpaces(userDetails.fname)
             }
             //lname
             if (userDetails.lname) {
@@ -238,7 +252,7 @@ const updateUser = async function (req, res) {
                     res.status(400).send({ status: false, message: "Please Enter valid lastname" })
                     return
                 }
-                userObject.lname = userDetails.lname;
+                userObject.lname = validator.isValueWithoutSpaces(userDetails.lname)
             }
             if (userDetails.lname == "") {
                 return res.status(400).send({ status: false, message: "you selected the lastname field but value not provided" })

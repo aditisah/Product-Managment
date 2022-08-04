@@ -36,7 +36,7 @@ const createOrder = async function (req, res) {
                 items: findCart.items,
                 totalPrice: findCart.totalPrice,
                 totalItems: findCart.totalItems,
-                totalQuantity: findCart.items.reduce((a, b)=> { return a + b.quantity }, 0)
+                totalQuantity: findCart.items.reduce((a, b) => { return a + b.quantity }, 0)
             }
             if (Object.keys(req.body).includes("cancellable")) {
                 if (!validator.isValid(cancellable)) {
@@ -76,9 +76,7 @@ const updateOrder = async function (req, res) {
             res.status(400).send({ status: false, message: 'Please provide valid user id' })
             return
         }
-
         const isUserExist = await userModel.findById(userId)
-
         if (!isUserExist) {
             res.status(404).send({ status: false, message: 'User not found!!' })
             return

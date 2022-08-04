@@ -17,7 +17,7 @@ const register = async function (req, res) {
             res.status(400).send({ status: false, message: "Please Enter firstname" })
             return
         }
-        if(!validator.isValidTitle(userDetails.fname)){
+        if(!validator.isValidName(userDetails.fname)){
             res.status(400).send({ status: false, message: "Please Enter valid firstname" })
             return
         }
@@ -28,7 +28,7 @@ const register = async function (req, res) {
             res.status(400).send({ status: false, message: "Please Enter lastname" })
             return
         }
-        if(!validator.isValidTitle(userDetails.lname)){
+        if(!validator.isValidName(userDetails.lname)){
             res.status(400).send({ status: false, message: "Please Enter valid lastname" })
             return
         }

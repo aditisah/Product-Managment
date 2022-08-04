@@ -1,6 +1,6 @@
 const { isValidObjectId } = require("mongoose")
 
-const isValidTitle = function(value) {
+const isValidName = function(value) {
 const regName = /^[A-Za-z ]+$/
 return regName.test(value)
 }
@@ -81,5 +81,4 @@ const isValueWithoutSpaces = function(value) {
    let finalValue= value.trim().split(' ').filter(word=>word).join('')
    return finalValue
 }
-
-module.exports = { isValidTitle, isValidEmail, isValidPassword, isValid, isValidDecimalNumber, isValidPhone, isValidPincode, isValidImage, isValidObjectId, isValidSize, isValidOrderStatus, isValueWithoutSpaces }
+module.exports = { isValidName, isValidEmail, isValidPassword, isValid, isValidDecimalNumber, isValidPhone, isValidPincode, isValidImage, isValidObjectId, isValidSize, isValidOrderStatus, isValueWithoutSpaces }

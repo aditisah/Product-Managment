@@ -97,6 +97,11 @@ const updateOrder = async function (req, res) {
             return
         }
 
+        if(!validator.isValid(status)){
+            res.status(400).send({ status: false, message: 'Please provide order status to update' })
+            return
+        }
+
         if (!validator.isValidOrderStatus(status)) {
             res.status(400).send({ status: false, message: 'Please provide valid order status' })
             return

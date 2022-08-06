@@ -75,7 +75,7 @@ const createCart = async function (req, res) {
                     totalItems: 1,
                 };
                 let newCart = await cartModel.create(cartDeatils);
-                res.status(201).send({ status: true, data: newCart });
+                res.status(201).send({ status: true, message: 'Success', data: newCart });
                 return;
             }
         }
@@ -112,7 +112,7 @@ const createCart = async function (req, res) {
             addedProductDetail.totalItems = addedProductDetail.items.length
             let addProductToCart = await cartModel.findOneAndUpdate({ userId: userId }, addedProductDetail, { new: true });
 
-            res.status(200).send({ status: true, data: addProductToCart });
+            res.status(201).send({ status: true, message: 'Success', data: addProductToCart });
             return;
         }
     }
@@ -140,7 +140,7 @@ const getCart = async (req, res) => {
         if (!cartData) {
             return res.status(404).send({ status: false, message: `You haven't added any products to your cart` });
         }
-        res.status(200).send({ status: true, message: 'Cart details', data: cartData });
+        res.status(200).send({ status: true, message: 'Success', data: cartData });
     }
     catch (err) {
         res.status(500).send({ status: false, message: err.message });
@@ -218,7 +218,7 @@ const updateCart = async function (req, res) {
                 //update cart
                 const updateCart = await cartModel.findOneAndUpdate({ _id: cartId, items: { $elemMatch: { productId: productId } } }, filteredProduct, { new: true })
                                                   .populate('items.productId', { _id: 0, title: 1, description: 1, price: 1, productImage: 1, style: 1 })
-                return res.status(200).send({ status: true, message: "cart update successfully", data: updateCart })
+                return res.status(200).send({ status: true, message: "Success", data: updateCart })
             }
             else {
                 return res.status(400).send({ status: false, message: "Please Enter valid removeProduct Number from 0 or 1" })

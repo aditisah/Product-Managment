@@ -65,7 +65,7 @@ const createProduct = async function (req, res) {
         //product image
         const files = req.files;
         if (files.length == 0) {
-            return res.status(400).send({ status: false, message: "please provide profile Image" });
+            return res.status(400).send({ status: false, message: "please provide product Image" });
         }
         if (!validator.isValidImage(files[0].originalname.toLowerCase())) {
             return res.status(400).send({ status: false, message: "Image format is not correct" });
@@ -79,7 +79,7 @@ const createProduct = async function (req, res) {
         }
 
         const createProduct = await productModel.create(productData);
-        return res.status(201).send({ status: true, message: "product data create sucessfully", data: createProduct });
+        return res.status(201).send({ status: true, message: "Success", data: createProduct });
     }
     catch (err) {
         res.status(500).send({ status: false, message: err.message });
@@ -176,7 +176,7 @@ const getProductbyId = async function (req, res) {
         if (!getproduct) {
             return res.status(404).send({ status: false, message: "product not found" });
         }
-        return res.status(200).send({ status: true, message: "product details", data: getproduct });
+        return res.status(200).send({ status: true, message: "Success", data: getproduct });
     }
     catch (err) {
         res.status(500).send({ status: false, message: err.message });
@@ -301,7 +301,7 @@ const updateProduct = async (req, res) => {
             return res.status(400).send({ status: false, message: "Please Provide valid data to update product" })
         }
         const updatedProduct = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, productData, { new: true });
-        return res.status(200).send({ status: true, message: "product data updated sucessfully", data: updatedProduct })
+        return res.status(200).send({ status: true, message: "Success", data: updatedProduct })
     }
     catch (err) {
         return res.status(500).send({ status: false, message: err.message });

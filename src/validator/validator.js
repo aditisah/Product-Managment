@@ -6,7 +6,7 @@ return regName.test(value)
 }
 
 const isValidEmail = function (value) {
-    const regEx = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/
+    const regEx = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,5})+$/
     return regEx.test(value)
 }
 

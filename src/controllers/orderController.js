@@ -115,7 +115,7 @@ const updateOrder = async function (req, res) {
         }
 
         if(isOrderExist.status == 'canceled'){
-            res.status(400).send({ status: false, message: 'This order is already cancelled' })
+            res.status(400).send({ status: false, message: 'This order is already canceled' })
             return
         }
 

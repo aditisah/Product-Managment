@@ -268,7 +268,7 @@ const updateUser = async function (req, res) {
                 }
                 const findEmail = await userModel.findOne({ email: userDetails.email })
                 if (findEmail) {
-                    return res.status(409).send({ status: false, message: "email is already use" })
+                    return res.status(409).send({ status: false, message: "email is already used" })
                 }
                 userObject.email = userDetails.email
             }
@@ -396,7 +396,7 @@ const updateUser = async function (req, res) {
                 if (!validator.isValidImage(files[0].originalname.toLowerCase())) {
                     return res.status(400).send({ status: false, message: "Image format is not correct" })
                 }
-                if (files && files.length > 0 && files.length < 2) {
+                if (files && files.length === 1) {
                     const uploadProfileImage = await awsService.uploadImage(files[0])
                     userObject['profileImage'] = uploadProfileImage;
                 }

@@ -229,7 +229,9 @@ const updateUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "Incorrect userId format" })
         }
         //Authorization
-        if (req.userId == userId) {
+        if (req.userId !== userId) {
+            return res.status(403).send({ status: false, message: "You are not authorize to update other profile" })
+        }else{
             if (Object.keys(userDetails).length === 0) {
                 res.status(400).send({ status: false, message: "Please Enter Details to Update" })
                 return
@@ -410,9 +412,6 @@ const updateUser = async function (req, res) {
             }
             const updateduser = await userModel.findByIdAndUpdate(userId, userObject, { new: true });
             return res.status(200).send({ status: true, message: "Success", data: updateduser })
-        }
-        else {
-            return res.status(403).send({ status: false, message: "You are not authorize to update other profile" })
         }
     }
     catch (error) {

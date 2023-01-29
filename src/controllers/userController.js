@@ -130,7 +130,7 @@ const register = async function (req, res) {
         if (!validator.isValidImage(files[0].originalname.toLowerCase())) {
             return res.status(400).send({ status: false, message: "Image format is not correct" })
         }
-        if (files && files.length > 0 && files.length < 2) {
+        if (files && files.length === 1) {
             const uploadProfileImage = await awsService.uploadImage(files[0])
             userObject['profileImage'] = uploadProfileImage;
         }
@@ -185,7 +185,7 @@ const userLogin = async function (req, res) {
             return res.status(200).send({ status: true, message: "User login successfull, token will be valid for 24 hrs", data: { userId: findUser._id, token } })
         }
         else {
-            return res.status(404).send({ status: false, message: `Password is wrong for this emial: ${email}` })
+            return res.status(400).send({ status: false, message: `Password is wrong for this emial: ${email}` })
         }
     }
     catch (error) {
@@ -283,7 +283,7 @@ const updateUser = async function (req, res) {
                 }
                 const findPhone = await userModel.findOne({ phone: userDetails.phone })
                 if (findPhone) {
-                    return res.status(409).send({ status: false, message: "phone number is already use" })
+                    return res.status(409).send({ status: false, message: "phone number is already used" })
                 }
                 userObject.phone = userDetails.phone
             }

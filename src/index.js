@@ -11,7 +11,7 @@ app.use(multer().any())
 
 app.use("/", route);
 
-mongoose.connect("mongodb+srv://radon-AnandSharma:Anand570@cluster0.riu1k.mongodb.net/group52Database",
+mongoose.connect("mongodb+srv://aditisah:HdtoVDUgrpCUNRmS@cluster0.jjd4zhp.mongodb.net/Product_Managment?retryWrites=true&w=majority",
     {
       useNewUrlParser: true,
     }

@@ -46,16 +46,19 @@ const createCart = async function (req, res) {
             res.status(404).send({status: false, message: 'User not found!!!'})
             return
         }
-        
+        //Authorization
         if (userId !== req.userId) {
             res.status(403).send({ status: false, message: "userId does not match with loggedin user id" });
             return;
         }
+        //Product exists or not
         const isProductExist = await productModel.findOne({ _id: productId, isDeleted: false, });
         if (!isProductExist) {
             res.status(404).send({ status: false, message: "Product not found" });
             return;
         }
+
+        //If cart with loggedin user not created
         if (!cartId) {
             const isCartCreatedWithUser = await cartModel.findOne({ userId });
             if (isCartCreatedWithUser) {
@@ -86,14 +89,15 @@ const createCart = async function (req, res) {
                 return;
             }
             //const isProductExistInCart = await cartModel.findOne({_id: cartId, items: {$elemMatch: {productId}}})
-            const isProductExistInCart = isCartCreated.items.map(el => el.productId.toString())
             const addedProductDetail = {}
+            //Returning array of all product ids inside items
+            const isProductExistInCart = isCartCreated.items.map(el => el.productId.toString())
             if (!isProductExistInCart.includes(productId)) {
-                let items = {
+                let item = {
                     productId: productId,
                     quantity: quantity
                 }
-                isCartCreated.items.push(items)
+                isCartCreated.items.push(item)
                 addedProductDetail.items = isCartCreated.items
 
                 //console.log(isCartCreated.items)
